@@ -6,7 +6,8 @@ import (
 	"github.com/otiai10/gosseract/v2"
 )
 
-func chunkText(text string, chunkSize int) []string {
+// helper function to chunk text
+func ChunkText(text string, chunkSize int) []string {
 	var chunks []string
 	runes := []rune(text)
 
@@ -22,7 +23,8 @@ func chunkText(text string, chunkSize int) []string {
 	return chunks
 }
 
-func processDOCX(filepath string) (string, error) {
+// helper function to process DOCX files
+func ProcessDOCX(filepath string) (string, error) {
 	doc, err := document.Open(filepath)
 	if err != nil {
 		return "", err
@@ -39,7 +41,8 @@ func processDOCX(filepath string) (string, error) {
 	return content, nil
 }
 
-func processOCR(filepath string) (string, error) {
+// helper function to process OCR
+func ProcessOCR(filepath string) (string, error) {
 	client := gosseract.NewClient()
 
 	defer client.Close()
@@ -53,7 +56,9 @@ func processOCR(filepath string) (string, error) {
 	}
 	return text, nil
 }
-func processPDF(filePath string) (string, error) {
+
+// helper function to process PDFs
+func ProcessPDF(filePath string) (string, error) {
 	f, r, err := pdf.Open(filePath)
 	if err != nil {
 		return "", err
