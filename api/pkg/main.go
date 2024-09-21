@@ -1,9 +1,14 @@
 package pkg
 
 import (
+	"context"
+	"os"
+
 	"baliance.com/gooxml/document"
 	"github.com/ledongthuc/pdf"
 	"github.com/otiai10/gosseract/v2"
+	"github.com/google/generative-ai-go/genai"
+	"google.golang.org/api/option"
 )
 
 // helper function to chunk text
@@ -84,4 +89,21 @@ func ProcessPDF(filePath string) (string, error) {
 		content += text
 	}
 	return content, nil
+}
+// Generates embeddings for a chunk of text
+func generateEmbeddings(chunk string) ([]float32, error) {
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+
+	em := client.EmbeddingModel("text-embedding-004")
+	res, err := em.EmbedContent(ctx, genai.Text(chunk))
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Embedding.Values, nil
 }
