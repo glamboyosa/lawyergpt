@@ -11,11 +11,11 @@ import (
 )
 
 type Result struct {
-	URL string `json:"url"`
+	URL         string `json:"url"`
 	TextContent string `json:"textContent"`
 }
 
-func main()  {
+func main() {
 	urls := []string{
 		"https://nigerialii.org/akn/ng/judgment/ngsc/2007/3/eng@2007-02-22",
 	}
@@ -23,7 +23,7 @@ func main()  {
 	fmt.Printf("results %v", results)
 }
 
-func processURLs(urls []string) []Result  {
+func processURLs(urls []string) []Result {
 	var wg sync.WaitGroup
 
 	results := make([]Result, len(urls))
@@ -34,9 +34,9 @@ func processURLs(urls []string) []Result  {
 		wg.Add(1)
 		go func(i int, url string) {
 			defer wg.Done()
-			semaphore <- struct{}{} 
-			defer func ()  {
-				<-semaphore	
+			semaphore <- struct{}{}
+			defer func() {
+				<-semaphore
 			}()
 			result, err := processURL(url)
 			if err != nil {
@@ -49,15 +49,15 @@ func processURLs(urls []string) []Result  {
 	wg.Wait()
 	return results
 }
-func processURL(url string) (Result, error)  {
-		textContent, err := scrapeTextContent(url)
-		if err != nil {
-			return Result{}, fmt.Errorf("error scraping text content: %w", err)
-		}
-		return Result{
-			URL: url,
-			TextContent: textContent,
-		}, nil
+func processURL(url string) (Result, error) {
+	textContent, err := scrapeTextContent(url)
+	if err != nil {
+		return Result{}, fmt.Errorf("error scraping text content: %w", err)
+	}
+	return Result{
+		URL:         url,
+		TextContent: textContent,
+	}, nil
 }
 
 func scrapeTextContent(url string) (string, error) {
@@ -75,7 +75,7 @@ func scrapeTextContent(url string) (string, error) {
 		return "", fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
 	}
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	
+
 	if err != nil {
 		return "", err
 	}
