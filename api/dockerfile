@@ -4,6 +4,11 @@ FROM golang:1.19-alpine
 # Set environment variables
 ENV GO111MODULE=on
 
+# Install dependencies and golang-migrate
+RUN apk add --no-cache curl \
+    && curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.0/migrate.linux-amd64.tar.gz | tar xvz -C /usr/local/bin \
+    && chmod +x /usr/local/bin/migrate
+
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -22,5 +27,5 @@ RUN go build -o main .
 # Expose the port the app will run on
 EXPOSE 8080
 
-# Command to run the executable
-CMD ["./main"]
+# Run migrations and start the application
+CMD migrate -database ${DB_URL} -path ./migrations up && ./main

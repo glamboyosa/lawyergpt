@@ -1,13 +1,18 @@
 package pkg
 
 import (
+	"bufio"
 	"context"
+	"fmt"
+	"log"
 	"os"
+	"strings"
 
 	"baliance.com/gooxml/document"
+	"github.com/golang-migrate/migrate"
+	"github.com/google/generative-ai-go/genai"
 	"github.com/ledongthuc/pdf"
 	"github.com/otiai10/gosseract/v2"
-	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
 
@@ -106,4 +111,54 @@ func generateEmbeddings(chunk string) ([]float32, error) {
 	}
 
 	return res.Embedding.Values, nil
+}
+// loadEnv loads environment variables from a file if it exists
+func LoadEnv(filename string) error  {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+
+			os.Setenv(key, value)
+		}
+	}
+	return scanner.Err()
+}
+func getDBURL() string {
+	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=require",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+	)
+	return dsn
+}
+// runMigrations uses golang-migrate to apply database migrations
+func RunMigrations() error {
+	m, err := migrate.New(
+		"file://../migrations", // Path to the migrations folder
+		getDBURL(),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create migrate instance: %w", err)
+	}
+
+	// Apply the migrations
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to apply migrations: %w", err)
+	}
+
+	log.Println("Migrations applied successfully.")
+	return nil
 }

@@ -12,6 +12,10 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type semaphore struct {
@@ -109,9 +113,54 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 	fmt.Fprintf(w, "Files are being processed asynchronously")
 
-	wg.Wait()
+	wg.Wait() 
 }
 func main() {
+	// loadEnv if exists (in development) 
+err := pkg.LoadEnv(".env.development")
+if err != nil && !os.IsNotExist(err) {
+	log.Printf("Error loading .env.development: %v", err)
+}
+	// gorm config 
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+	)
+	config := &gorm.Config{
+		PrepareStmt: true,
+	}
+
+	db, err := gorm.Open(postgres.Open(dsn), config)
+
+	if err != nil {
+		log.Fatalf("Failed to connect database %v", err)
+	}
+
+	sqlDB, err := db.DB()
+
+	if err != nil {
+		log.Fatalf("Failed to get database %v", err)
+	}
+
+	sqlDB.SetMaxIdleConns(20)
+	sqlDB.SetMaxOpenConns(130)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	env := os.Getenv("ENV")
+
+	// Run migrations only if ENV is set to DEVELOPMENT
+	if env == "DEVELOPMENT" {
+		log.Println("Running migrations in DEVELOPMENT environment...")
+		err := pkg.RunMigrations()
+		if err != nil {
+			log.Fatalf("Error running migrations: %v", err)
+		}
+	} else {
+		log.Println("Skipping migrations. ENV is not set to DEVELOPMENT.")
+	}
 	http.HandleFunc("/upload", handleUpload)
 
 	fmt.Println("Server running on port 8080")

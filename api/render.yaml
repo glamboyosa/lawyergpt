@@ -1,0 +1,6 @@
+services:
+  - name: my-service
+    type: web
+    env: docker
+    buildCommand: docker build -t my-app .
+    startCommand: docker run -e DB_URL=${DB_URL} my-app

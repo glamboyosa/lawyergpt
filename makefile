@@ -1,7 +1,41 @@
-API_DIR=./api
-EXTRACTOR_DIR=./extractor
+API_DIR=api
+EXTRACTOR_DIR=extractor
 PORT=8080
 
+# Database configuration
+DB_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
+
+# Migrate command
+MIGRATE-DEV=cd api && export $(cat .env.development | xargs) && migrate -database ${DB_URL} -path ./migrations
+MIGRATE=migrate -database ${DB_URL} -path ./migrations
+
+.PHONY: migrate-up migrate-down migrate-create
+
+migrate-up:
+	@echo "Running all up migrations..."
+	@${MIGRATE} up
+
+migrate-down:
+	@echo "Running all down migrations..."
+	@${MIGRATE} down
+
+migrate-create:
+	@read -p "Enter migration name: " name; \
+	${MIGRATE} create -ext sql -dir ./migrations -seq $${name}
+
+.PHONY: migrate-up-dev migrate-down-dev migrate-create-dev
+
+migrate-up-dev:
+	@echo "Running all up migrations..."
+	@${MIGRATE-DEV} up
+
+migrate-down-dev:
+	@echo "Running all down migrations..."
+	@${MIGRATE-DEV} down
+
+migrate-create-dev:
+	@read -p "Enter migration name: " name; \
+	${MIGRATE-DEV} create -ext sql -dir ./migrations -seq $${name}
 # Default task: run the API server
 .PHONY: run
 run:
