@@ -113,15 +113,15 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 	fmt.Fprintf(w, "Files are being processed asynchronously")
 
-	wg.Wait() 
+	wg.Wait()
 }
 func main() {
-	// loadEnv if exists (in development) 
-err := pkg.LoadEnv(".env.development")
-if err != nil && !os.IsNotExist(err) {
-	log.Printf("Error loading .env.development: %v", err)
-}
-	// gorm config 
+	// loadEnv if exists (in development)
+	err := pkg.LoadEnv(".env.development")
+	if err != nil && !os.IsNotExist(err) {
+		log.Printf("Error loading .env.development: %v", err)
+	}
+	// gorm config
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),

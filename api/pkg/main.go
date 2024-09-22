@@ -95,6 +95,7 @@ func ProcessPDF(filePath string) (string, error) {
 	}
 	return content, nil
 }
+
 // Generates embeddings for a chunk of text
 func generateEmbeddings(chunk string) ([]float32, error) {
 	ctx := context.Background()
@@ -112,8 +113,9 @@ func generateEmbeddings(chunk string) ([]float32, error) {
 
 	return res.Embedding.Values, nil
 }
+
 // loadEnv loads environment variables from a file if it exists
-func LoadEnv(filename string) error  {
+func LoadEnv(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -144,6 +146,7 @@ func getDBURL() string {
 	)
 	return dsn
 }
+
 // runMigrations uses golang-migrate to apply database migrations
 func RunMigrations() error {
 	m, err := migrate.New(
