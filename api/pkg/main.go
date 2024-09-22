@@ -145,5 +145,3 @@ func GetDBURL() string {
 	)
 	return dsn
 }
-
-

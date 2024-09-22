@@ -25,6 +25,7 @@ import (
 type semaphore struct {
 	sem chan struct{}
 }
+
 // runMigrations uses golang-migrate to apply database migrations
 func RunMigrations() error {
 	fmt.Printf("db url %s", pkg.GetDBURL())
@@ -36,10 +37,10 @@ func RunMigrations() error {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
 	}
 	fmt.Printf("M is, %v", m)
-// 	versionToForce := 1
-// if err := m.Force(versionToForce); err != nil {
-// 	log.Fatalf("failed to force version %d: %v", versionToForce, err)
-// }
+	// 	versionToForce := 1
+	// if err := m.Force(versionToForce); err != nil {
+	// 	log.Fatalf("failed to force version %d: %v", versionToForce, err)
+	// }
 	// Apply the migrations
 	if err := m.Up(); err != nil {
 		log.Fatal(err)
@@ -186,7 +187,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("Error is %v", err)
 		}
-		
+
 	} else {
 		log.Println("Skipping migrations. ENV is not set to DEVELOPMENT.")
 	}
