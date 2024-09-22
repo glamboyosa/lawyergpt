@@ -12,9 +12,11 @@ LawyerGPT is a legal document processing and query system that leverages AI to a
 
 ## Project structure
 
+```bash
 .
 ├── api
 ├── extractor
 ├── frontend
 ├── makefile
 └── readme
+```
