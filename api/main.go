@@ -14,6 +14,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,7 +25,30 @@ import (
 type semaphore struct {
 	sem chan struct{}
 }
+// runMigrations uses golang-migrate to apply database migrations
+func RunMigrations() error {
+	fmt.Printf("db url %s", pkg.GetDBURL())
+	m, err := migrate.New(
+		"file://./migrations",
+		pkg.GetDBURL(),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create migrate instance: %w", err)
+	}
+	fmt.Printf("M is, %v", m)
+// 	versionToForce := 1
+// if err := m.Force(versionToForce); err != nil {
+// 	log.Fatalf("failed to force version %d: %v", versionToForce, err)
+// }
+	// Apply the migrations
+	if err := m.Up(); err != nil {
+		log.Fatal(err)
+		return fmt.Errorf("failed to apply migrations: %w", err)
+	}
 
+	log.Println("Migrations applied successfully.")
+	return nil
+}
 func newSemaphore(n int) *semaphore {
 	return &semaphore{sem: make(chan struct{}, n)}
 }
@@ -122,13 +149,14 @@ func main() {
 		log.Printf("Error loading .env.development: %v", err)
 	}
 	// gorm config
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"),
 	)
+	fmt.Print(dsn)
 	config := &gorm.Config{
 		PrepareStmt: true,
 	}
@@ -154,10 +182,11 @@ func main() {
 	// Run migrations only if ENV is set to DEVELOPMENT
 	if env == "DEVELOPMENT" {
 		log.Println("Running migrations in DEVELOPMENT environment...")
-		err := pkg.RunMigrations()
+		err := RunMigrations()
 		if err != nil {
-			log.Fatalf("Error running migrations: %v", err)
+			fmt.Printf("Error is %v", err)
 		}
+		
 	} else {
 		log.Println("Skipping migrations. ENV is not set to DEVELOPMENT.")
 	}

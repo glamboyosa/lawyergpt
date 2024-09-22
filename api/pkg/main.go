@@ -4,12 +4,11 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
 	"baliance.com/gooxml/document"
-	"github.com/golang-migrate/migrate"
+
 	"github.com/google/generative-ai-go/genai"
 	"github.com/ledongthuc/pdf"
 	"github.com/otiai10/gosseract/v2"
@@ -97,7 +96,7 @@ func ProcessPDF(filePath string) (string, error) {
 }
 
 // Generates embeddings for a chunk of text
-func generateEmbeddings(chunk string) ([]float32, error) {
+func GenerateEmbeddings(chunk string) ([]float32, error) {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
 	if err != nil {
@@ -136,8 +135,8 @@ func LoadEnv(filename string) error {
 	}
 	return scanner.Err()
 }
-func getDBURL() string {
-	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=require",
+func GetDBURL() string {
+	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
@@ -147,21 +146,4 @@ func getDBURL() string {
 	return dsn
 }
 
-// runMigrations uses golang-migrate to apply database migrations
-func RunMigrations() error {
-	m, err := migrate.New(
-		"file://../migrations", // Path to the migrations folder
-		getDBURL(),
-	)
-	if err != nil {
-		return fmt.Errorf("failed to create migrate instance: %w", err)
-	}
 
-	// Apply the migrations
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return fmt.Errorf("failed to apply migrations: %w", err)
-	}
-
-	log.Println("Migrations applied successfully.")
-	return nil
-}

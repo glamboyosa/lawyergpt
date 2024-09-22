@@ -1,0 +1,51 @@
+# Start from the official Go image
+FROM golang:latest
+
+RUN apt-get update -qq
+
+# You need librariy files and headers of tesseract and leptonica.
+# When you miss these or LD_LIBRARY_PATH is not set to them,
+# you would face an error: "tesseract/baseapi.h: No such file or directory"
+RUN apt-get install -y -qq libtesseract-dev libleptonica-dev
+
+# In case you face TESSDATA_PREFIX error, you minght need to set env vars
+# to specify the directory where "tessdata" is located.
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata/
+
+# Load languages.
+# These {lang}.traineddata would b located under ${TESSDATA_PREFIX}/tessdata.
+RUN apt-get install -y -qq \
+  tesseract-ocr-eng \
+  tesseract-ocr-deu \
+  tesseract-ocr-jpn
+# See https://github.com/tesseract-ocr/tessdata for the list of available languages.
+# If you want to download these traineddata via `wget`, don't forget to locate
+# downloaded traineddata under ${TESSDATA_PREFIX}/tessdata.
+# Set environment variables
+ENV GO111MODULE=on
+
+# Install dependencies and golang-migrate
+RUN apt-get install curl \
+    && curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.0/migrate.linux-amd64.tar.gz | tar xvz -C /usr/local/bin \
+    && chmod +x /usr/local/bin/migrate
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy go.mod and go.sum files to the container
+COPY go.mod go.sum ./
+
+# Download all dependencies
+RUN go mod download
+
+# Copy the entire source code to the container
+COPY . .
+
+# Build the Go application
+RUN go build -o main .
+
+# Expose the port the app will run on
+EXPOSE 8080
+
+# Run migrations and start the application
+CMD migrate -database ${DB_URL} -path ./migrations up && ./main
