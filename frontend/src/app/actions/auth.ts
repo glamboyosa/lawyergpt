@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 const signUpSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -26,6 +27,9 @@ export async function signUp(prevState: any, formData: FormData) {
   // For this example, we'll just simulate a successful sign-up
   await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
+  cookies().set("user", validatedFields.data.email, {
+    expires: 604800000,
+  });
   return { status: "success" };
 }
 
@@ -41,6 +45,8 @@ export async function logIn(prevState: any, formData: FormData) {
   // Here you would typically verify the user's credentials
   // For this example, we'll just simulate a successful login
   await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-
+  cookies().set("user", validatedFields.data.email, {
+    expires: 604800000,
+  });
   return { status: "success" };
 }
