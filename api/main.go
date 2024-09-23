@@ -60,6 +60,7 @@ func (s *semaphore) acquire() {
 func (s *semaphore) release() {
 	<-s.sem
 }
+
 // pattern for API stuff
 type AppHandler struct {
 	db *gorm.DB
@@ -166,7 +167,6 @@ func SetupRoutes(db *gorm.DB) {
 	http.HandleFunc("/upload", apiKeyMiddleware(ah.handleUpload))
 }
 
-
 func main() {
 	// loadEnv if exists (in development)
 	err := pkg.LoadEnv(".env.development")
@@ -215,7 +215,7 @@ func main() {
 	} else {
 		log.Println("Skipping migrations. ENV is not set to DEVELOPMENT.")
 	}
-	
+
 	SetupRoutes(db)
 	fmt.Println("Server running on port 8080")
 
