@@ -31,8 +31,6 @@ LawyerGPT is a legal document processing and query system that leverages AI to a
 
 - **CI/CD**: GitHub Actions are utilized across the stack for automated testing, linting, and deployment. This ensures a consistent and robust development workflow, with all critical paths being covered during each code push.
 
----
-
 ## Running the Stack
 
 ### 1. **Frontend (Next.js App)**
@@ -64,8 +62,6 @@ npm install -g pnpm
    ```
 
 4. Access the app at `http://localhost:3000`.
-
----
 
 ### 2. **API (Go HTTP API)**
 
