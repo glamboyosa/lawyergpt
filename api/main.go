@@ -44,7 +44,7 @@ func RunMigrations() error {
 	// }
 	// Apply the migrations
 	if err := m.Up(); err != nil {
-			// Skip, but not treated as a fatal error
+		// Skip, but not treated as a fatal error
 		if err == migrate.ErrNoChange {
 			return nil
 		}
