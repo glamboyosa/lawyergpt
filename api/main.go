@@ -200,9 +200,18 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	wg.Wait()
 }
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	// Set the content type to HTML
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	// Write a simple Hello, World! HTML response
+	fmt.Fprint(w, "<h1>Hello, World!</h1>")
+}
+
 func SetupRoutes(db *gorm.DB) {
 	ah := NewAppHandler(db)
 	http.HandleFunc("/upload", apiKeyMiddleware(ah.handleUpload))
+	http.HandleFunc("/", helloHandler)
 }
 
 func main() {
@@ -257,5 +266,7 @@ func main() {
 	SetupRoutes(db)
 	fmt.Println("Server running on port 8080")
 
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		fmt.Println("Failed to start server:", err)
+	}
 }
