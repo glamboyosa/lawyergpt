@@ -38,12 +38,16 @@ func RunMigrations() error {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
 	}
 	fmt.Printf("M is, %v", m)
-	// 	versionToForce := 1
+	// 	versionToForce := 3
 	// if err := m.Force(versionToForce); err != nil {
 	// 	log.Fatalf("failed to force version %d: %v", versionToForce, err)
 	// }
 	// Apply the migrations
 	if err := m.Up(); err != nil {
+			// Skip, but not treated as a fatal error
+		if err == migrate.ErrNoChange {
+			return nil
+		}
 		log.Fatal(err)
 		return fmt.Errorf("failed to apply migrations: %w", err)
 	}
