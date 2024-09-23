@@ -11,6 +11,8 @@ import (
 // Resource struct
 type Resource struct {
 	ID        string    `gorm:"type:varchar(191);primaryKey"`
+	Filename  *string   `gorm:"type:varchar(255)"`
+	URL       *string   `gorm:"type:varchar(255)"`
 	Content   string    `gorm:"type:text;not null"`
 	CreatedAt time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	UpdatedAt time.Time `gorm:"not null;default:CURRENT_TIMESTAMP;ON UPDATE CURRENT_TIMESTAMP"`
