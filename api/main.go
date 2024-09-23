@@ -157,27 +157,26 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 			chunks := pkg.ChunkText(content, 2000)
 			log.Printf("Processed file %s into %d chunks", fileHeader.Filename, len(chunks))
 
-			
 			for _, chunk := range chunks {
 				embedding, err := pkg.GenerateEmbeddings(chunk)
 				if err != nil {
 					continue
 				}
-				err = ah.db.Session(&gorm.Session{}).Transaction(func (tx *gorm.DB) error {
+				err = ah.db.Session(&gorm.Session{}).Transaction(func(tx *gorm.DB) error {
 					newResource := models.Resource{
 						Filename: &fileHeader.Filename,
-						Content: content,
+						Content:  content,
 					}
-					if err := tx.Create(&newResource).Error; err !=nil {
+					if err := tx.Create(&newResource).Error; err != nil {
 						return err
 					}
 					log.Printf("Created resource with ID: %s", newResource.ID)
-					
-					// create  new embedding 
+
+					// create  new embedding
 					newEmbedding := models.Embedding{
 						ResourceID: newResource.ID,
-						Content: chunk,
-						Embedding: embedding,
+						Content:    chunk,
+						Embedding:  embedding,
 					}
 
 					if err := tx.Create(&newEmbedding).Error; err != nil {
@@ -185,10 +184,10 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 					}
 					log.Printf("Created embedding with ID: %s", newEmbedding.ID)
 
-		return nil
+					return nil
 
 				})
-				
+
 			}
 		}(fileHeader)
 	}
