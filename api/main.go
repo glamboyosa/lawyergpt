@@ -60,7 +60,25 @@ func (s *semaphore) acquire() {
 func (s *semaphore) release() {
 	<-s.sem
 }
-func handleUpload(w http.ResponseWriter, r *http.Request) {
+// pattern for API stuff
+type AppHandler struct {
+	db *gorm.DB
+}
+
+func NewAppHandler(db *gorm.DB) *AppHandler {
+	return &AppHandler{db: db}
+}
+func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		apiKey := r.Header.Get("X-API-Key")
+		if apiKey != os.Getenv("X_API_KEY") {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+}
+func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 
 	maxSize := int64(15 << 20) // 15 mb limit
@@ -143,6 +161,12 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	wg.Wait()
 }
+func SetupRoutes(db *gorm.DB) {
+	ah := NewAppHandler(db)
+	http.HandleFunc("/upload", apiKeyMiddleware(ah.handleUpload))
+}
+
+
 func main() {
 	// loadEnv if exists (in development)
 	err := pkg.LoadEnv(".env.development")
@@ -191,9 +215,9 @@ func main() {
 	} else {
 		log.Println("Skipping migrations. ENV is not set to DEVELOPMENT.")
 	}
-	http.HandleFunc("/upload", handleUpload)
-
+	
+	SetupRoutes(db)
 	fmt.Println("Server running on port 8080")
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.ListenAndServe(":8080", nil)
 }
