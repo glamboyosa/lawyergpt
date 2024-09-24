@@ -40,7 +40,7 @@ migrate-create-dev:
 .PHONY: run
 run:
 	@echo "Running the Go API server in '$(API_DIR)' on port $(PORT)..."
-	@cd $(API_DIR) && docker build -f dockerfile.dev -t lawyergpt/api . && docker run -it --rm lawyergpt/api
+	@cd $(API_DIR) && docker build -f dockerfile.dev -t lawyergpt/api . && docker run -p 8080:8080 -it --rm lawyergpt/api
 
 
 # Install dependencies for the API
@@ -61,12 +61,14 @@ deps-extractor:
 	@echo "Installing dependencies for the API in '$(EXTRACTOR_DIR)'..."
 	@cd $(EXTRACTOR_DIR) && go mod tidy && go mod download
 
-# Build the binary in the 'extractor' folder
+# Build the binary in the 'extractor' folder and run it
 .PHONY: build-extractor
 build-extractor:
 	@echo "Building the Go Extractor service..."
-	@cd $(EXTRACTOR_DIR) && go build main.go
-	@echo "Build completed."
+	@cd $(EXTRACTOR_DIR) && go build -o extractor main.go
+	@echo "Build completed. Running the extractor..."
+	@cd $(EXTRACTOR_DIR) && ./extractor
+
 
 # Clean up build artifacts and cache in the 'extractor' folder
 .PHONY: clean
