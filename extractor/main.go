@@ -58,13 +58,13 @@ func main() {
 	}
 	urls := []string{
 		"https://nigerialii.org/akn/ng/judgment/ngsc/2007/3/eng@2007-02-22",
-		"https://nigerialii.org/akn/ng/judgment/ngca/2014/1/eng@2014-02-26",
-		"https://nigerialii.org/akn/ng/judgment/ngsc/2016/51/eng@2016-02-11",
-		"https://nigerialii.org/akn/ng/judgment/ngsc/1989/16/eng@1989-01-19",
-		"https://nigerialii.org/akn/ng/judgment/ngsc/1989/24/eng@1989-01-20",
-		"https://nigerialii.org/akn/ng/judgment/ngsc/1989/26/eng@1989-01-20",
-		"https://nigerialii.org/akn/ng/judgment/ngsc/1976/35/eng@1976-06-04",
-		"https://nigerialii.org/akn/ng/judgment/ngca/2013/1/eng@2013-02-10",
+		// "https://nigerialii.org/akn/ng/judgment/ngca/2014/1/eng@2014-02-26",
+		// "https://nigerialii.org/akn/ng/judgment/ngsc/2016/51/eng@2016-02-11",
+		// "https://nigerialii.org/akn/ng/judgment/ngsc/1989/16/eng@1989-01-19",
+		// "https://nigerialii.org/akn/ng/judgment/ngsc/1989/24/eng@1989-01-20",
+		// "https://nigerialii.org/akn/ng/judgment/ngsc/1989/26/eng@1989-01-20",
+		// "https://nigerialii.org/akn/ng/judgment/ngsc/1976/35/eng@1976-06-04",
+		// "https://nigerialii.org/akn/ng/judgment/ngca/2013/1/eng@2013-02-10",
 	}
 	results := processURLs(urls)
 	fmt.Printf("results %v", results)

@@ -20,6 +20,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/pgvector/pgvector-go"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -66,7 +67,30 @@ func RunMigrations() error {
 func newSemaphore(n int) *semaphore {
 	return &semaphore{sem: make(chan struct{}, n)}
 }
+func createOrGetResourceForURL(tx *gorm.DB, url *string, content string) (string, error) {
+    // Check if the resource already exists
+    var existingResource models.Resource
+    if err := tx.Where("url = ?", url).First(&existingResource).Error; err != nil {
+        if err == gorm.ErrRecordNotFound {
+            // Resource does not exist, create a new one
+            newResource := models.Resource{
+                URL:     url,
+                Content: content,
+            }
+            if err := tx.Create(&newResource).Error; err != nil {
+                return "", err
+            }
+            log.Printf("Created resource with ID: %d", newResource.ID)
+            return newResource.ID, nil
+        } else {
+            return "", err
+        }
+    }
 
+    // Resource already exists, return the ID
+    log.Printf("Found existing resource with ID: %d", existingResource.ID)
+    return existingResource.ID, nil
+}
 func (s *semaphore) acquire() {
 	s.sem <- struct{}{}
 }
@@ -167,7 +191,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Error processing file: %v", err)
 				return
 			}
-			chunks := pkg.ChunkText(content, 2000)
+			chunks := pkg.ChunkText(content, 4000)
 			log.Printf("Processed file %s into %d chunks", fileHeader.Filename, len(chunks))
 
 			for _, chunk := range chunks {
@@ -189,7 +213,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 					newEmbedding := models.Embedding{
 						ResourceID: newResource.ID,
 						Content:    chunk,
-						Embedding:  embedding,
+						Embedding:  pgvector.NewVector(embedding),
 					}
 
 					if err := tx.Create(&newEmbedding).Error; err != nil {
@@ -228,7 +252,7 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 			defer sem.release()
 			defer wg.Done()
 			log.Print(result)
-			chunks := pkg.ChunkText(result.TextContent, 3000)
+			chunks := pkg.ChunkText(result.TextContent, 4000)
 			for _, chunk := range chunks {
 				log.Printf("chunk is %s", chunk)
 				embedding, err := pkg.GenerateEmbeddings(chunk)
@@ -239,20 +263,17 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 				}
 
 				err = ah.db.Session(&gorm.Session{}).Transaction(func(tx *gorm.DB) error {
-					newResource := models.Resource{
-						URL:     &result.URL,
-						Content: result.TextContent,
-					}
-					if err := tx.Create(&newResource).Error; err != nil {
+					resourceId, err := createOrGetResourceForURL(tx, &result.URL, result.TextContent)
+					if err != nil {
 						return err
 					}
-					log.Printf("Created resource with ID: %s", newResource.ID)
+					log.Printf("Created resource with ID: %s", resourceId)
 					log.Printf("Embedding %v", embedding)
 					// create new embedding
 					newEmbedding := models.Embedding{
-						ResourceID: newResource.ID,
+						ResourceID: resourceId,
 						Content:    chunk,
-						Embedding:  embedding,
+						Embedding:  pgvector.NewVector(embedding),
 					}
 					if err := tx.Create(&newEmbedding).Error; err != nil {
 						log.Printf("Embedding insertion error %v", err)
