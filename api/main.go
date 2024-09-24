@@ -76,7 +76,7 @@ func NewAppHandler(db *gorm.DB) *AppHandler {
 }
 func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		apiKey := r.Header.Get("X-API-Key")
+		apiKey := r.Header.Get("x-api-key")
 		if apiKey != os.Getenv("X_API_KEY") {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
