@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -24,7 +26,34 @@ func min(a, b int) int {
 	}
 	return b
 }
+	// loadEnv if it exists in development
+func LoadEnv(filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+
+			os.Setenv(key, value)
+		}
+	}
+	return scanner.Err()
+}
 func main() {
+
+	err := LoadEnv(".env.development")
+	if err != nil && !os.IsNotExist(err) {
+		log.Printf("Error loading .env.development: %v", err)
+	}
 	urls := []string{
 		"https://nigerialii.org/akn/ng/judgment/ngsc/2007/3/eng@2007-02-22",
 	}
