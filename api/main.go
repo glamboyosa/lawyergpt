@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"lawyergpt/api/models"
@@ -26,7 +27,10 @@ import (
 type semaphore struct {
 	sem chan struct{}
 }
-
+type Result struct {
+	URL         string `json:"url"`
+	TextContent string `json:"textContent"`
+}
 // runMigrations uses golang-migrate to apply database migrations
 func RunMigrations() error {
 	fmt.Printf("db url %s", pkg.GetDBURL())
@@ -199,6 +203,28 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Files are being processed asynchronously")
 
 	wg.Wait()
+}
+func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Request){
+	var wg sync.WaitGroup
+	var results []Result 
+	err := json.NewDecoder(r.Body).Decode(&results)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	sem := newSemaphore(5)
+	for _, result := range results {
+		wg.Add(1)
+		sem.acquire()
+
+		go func(result Result){
+		defer sem.release()
+		defer wg.Done()
+			
+		}(result)
+	}
+
 }
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// Set the content type to HTML
