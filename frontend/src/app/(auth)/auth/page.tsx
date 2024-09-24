@@ -1,6 +1,6 @@
 "use client";
 
-import { logIn, signUp } from "@/app/actions/auth";
+import { logIn, signUp } from "@/app/(auth)/actions/auth";
 import { useActionState, useState } from "react";
 import { SubmitButton } from "../components/AuthFormButton";
 
