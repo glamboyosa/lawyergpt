@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import {Toaster} from 'sonner'
-const geistSans = localFont({
-	src: "./fonts/GeistVF.woff",
-	variable: "--font-geist-sans",
-	weight: "100 900",
+import { Toaster } from "sonner";
+const spaceGrotesk = Space_Grotesk({
+	subsets: ["latin"],
+	display: "swap",
 });
-const geistMono = localFont({
-	src: "./fonts/GeistMonoVF.woff",
-	variable: "--font-geist-mono",
-	weight: "100 900",
-});
-
 export const metadata: Metadata = {
 	title: "LawyerGPT",
 	description: "AI-powered legal document processing and querying platform.",
@@ -25,8 +18,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`${geistSans.variable}${geistMono.variable} antialiased`}>{children}
-				<Toaster/>
+			<body className={spaceGrotesk.className}>
+				{children}
+				<Toaster />
 			</body>
 		</html>
 	);

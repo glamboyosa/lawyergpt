@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useFormStatus } from "react-dom";
-import { Spinner } from "./Spinner";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useFormStatus } from "react-dom";
 import { toast } from "sonner";
+import { Spinner } from "./Spinner";
 const buttonCopy = {
 	idle: "Send me a login link",
 	pending: <Spinner size={16} color="rgba(255, 255, 255, 0.65)" />,
@@ -13,19 +13,19 @@ const buttonCopy = {
 };
 export function SubmitButton({ state }: { state: { status: string } }) {
 	const { pending } = useFormStatus();
-	const router = useRouter()
+	const router = useRouter();
 	const buttonState = state.status === "idle" ? state.status : pending ? "pending" : "success";
 	if (buttonState === "success") {
 		setTimeout(() => {
-			router.push("/")
+			router.push("/");
 		}, 1000);
 	}
 
 	useEffect(() => {
 		if (state.status === "error") {
-		toast.error("An error occurred")
-	}
-	},[state])
+			toast.error("An error occurred");
+		}
+	}, [state]);
 	return (
 		<motion.button
 			type="submit"
