@@ -68,28 +68,28 @@ func newSemaphore(n int) *semaphore {
 	return &semaphore{sem: make(chan struct{}, n)}
 }
 func createOrGetResourceForURL(tx *gorm.DB, url *string, content string) (string, error) {
-    // Check if the resource already exists
-    var existingResource models.Resource
-    if err := tx.Where("url = ?", url).First(&existingResource).Error; err != nil {
-        if err == gorm.ErrRecordNotFound {
-            // Resource does not exist, create a new one
-            newResource := models.Resource{
-                URL:     url,
-                Content: content,
-            }
-            if err := tx.Create(&newResource).Error; err != nil {
-                return "", err
-            }
-            log.Printf("Created resource with ID: %d", newResource.ID)
-            return newResource.ID, nil
-        } else {
-            return "", err
-        }
-    }
+	// Check if the resource already exists
+	var existingResource models.Resource
+	if err := tx.Where("url = ?", url).First(&existingResource).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// Resource does not exist, create a new one
+			newResource := models.Resource{
+				URL:     url,
+				Content: content,
+			}
+			if err := tx.Create(&newResource).Error; err != nil {
+				return "", err
+			}
+			log.Printf("Created resource with ID: %d", newResource.ID)
+			return newResource.ID, nil
+		} else {
+			return "", err
+		}
+	}
 
-    // Resource already exists, return the ID
-    log.Printf("Found existing resource with ID: %d", existingResource.ID)
-    return existingResource.ID, nil
+	// Resource already exists, return the ID
+	log.Printf("Found existing resource with ID: %d", existingResource.ID)
+	return existingResource.ID, nil
 }
 func (s *semaphore) acquire() {
 	s.sem <- struct{}{}
