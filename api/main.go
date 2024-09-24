@@ -221,10 +221,43 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 		go func(result Result){
 		defer sem.release()
 		defer wg.Done()
-			
+		chunks := pkg.ChunkText(result.TextContent, 2000)
+		for _, chunk := range chunks {
+			embedding, err := pkg.GenerateEmbeddings(chunk)
+
+			if err != nil {
+				continue
+			}
+
+			err = ah.db.Session(&gorm.Session{}).Transaction(func (tx *gorm.DB) error {
+				newResource := models.Resource{
+					URL: &result.URL,
+					Content: result.TextContent,
+				}
+				if err := tx.Create(&newResource).Error; err != nil {
+					return err
+				}
+				log.Printf("Created resource with ID: %s", newResource.ID)
+				// create new embedding 
+				newEmbedding := models.Embedding{
+					ResourceID: newResource.ID,
+					Content: chunk,
+					Embedding: embedding,
+				}
+				if err := tx.Create(&newEmbedding).Error; err != nil {
+					return err
+				}
+				log.Printf("Created embedding with ID: %s", newEmbedding.ID)
+
+				return nil
+			})
+		}	
 		}(result)
 	}
+	w.WriteHeader(http.StatusAccepted)
+	fmt.Fprintf(w, "Embeddings are being processed asynchronously")
 
+	wg.Wait()
 }
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// Set the content type to HTML
