@@ -270,6 +270,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 func SetupRoutes(db *gorm.DB) {
 	ah := NewAppHandler(db)
 	http.HandleFunc("/upload", apiKeyMiddleware(ah.handleUpload))
+	http.HandleFunc("/text-embeddings", apiKeyMiddleware(ah.handleTextEmbeddings))
 	http.HandleFunc("/", helloHandler)
 }
 
