@@ -31,6 +31,9 @@ type Result struct {
 	URL         string `json:"url"`
 	TextContent string `json:"textContent"`
 }
+type Results struct {
+	Results []Result `json:"results"`
+}
 
 // runMigrations uses golang-migrate to apply database migrations
 func RunMigrations() error {
@@ -81,6 +84,7 @@ func NewAppHandler(db *gorm.DB) *AppHandler {
 }
 func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Print("API MIDDLEWARE")
 		apiKey := r.Header.Get("x-api-key")
 		if apiKey != os.Getenv("x-api-key") {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -206,8 +210,9 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	wg.Wait()
 }
 func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Request) {
+	log.Print("Got in here")
 	var wg sync.WaitGroup
-	var results []Result
+	var results Results
 	err := json.NewDecoder(r.Body).Decode(&results)
 
 	if err != nil {
@@ -215,18 +220,21 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	sem := newSemaphore(5)
-	for _, result := range results {
+	for _, result := range results.Results {
 		wg.Add(1)
 		sem.acquire()
-
+		
 		go func(result Result) {
 			defer sem.release()
 			defer wg.Done()
-			chunks := pkg.ChunkText(result.TextContent, 2000)
+			log.Print(result)
+			chunks := pkg.ChunkText(result.TextContent, 3000)
 			for _, chunk := range chunks {
+				log.Printf("chunk is %s", chunk)
 				embedding, err := pkg.GenerateEmbeddings(chunk)
 
 				if err != nil {
+					log.Printf("Error is %v", err)
 					continue
 				}
 
@@ -239,13 +247,15 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 						return err
 					}
 					log.Printf("Created resource with ID: %s", newResource.ID)
+					log.Printf("Embedding %v", embedding)
 					// create new embedding
 					newEmbedding := models.Embedding{
 						ResourceID: newResource.ID,
 						Content:    chunk,
-						Embedding:  embedding,
+						Embedding: embedding,
 					}
 					if err := tx.Create(&newEmbedding).Error; err != nil {
+						log.Printf("Embedding insertion error %v", err)
 						return err
 					}
 					log.Printf("Created embedding with ID: %s", newEmbedding.ID)
@@ -261,6 +271,7 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 	wg.Wait()
 }
 func helloHandler(w http.ResponseWriter, r *http.Request) {
+	
 	// Set the content type to HTML
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

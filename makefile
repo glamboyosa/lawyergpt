@@ -40,7 +40,7 @@ migrate-create-dev:
 .PHONY: run
 run:
 	@echo "Running the Go API server in '$(API_DIR)' on port $(PORT)..."
-	@cd $(API_DIR) && docker build -f dockerfile.dev -t lawyergpt/api . && docker run -p 8080:8080 -it --rm lawyergpt/api
+	@cd $(API_DIR) && docker-compose -f docker-compose.dev.yaml up
 
 
 # Install dependencies for the API

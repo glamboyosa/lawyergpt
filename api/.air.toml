@@ -1,0 +1,17 @@
+# Air configuration file
+version = "1.0"
+
+[build]
+  # The command to run when rebuilding your application.
+  cmd = "go build -o tmp/main ."
+
+  # The file extension to watch for edits.
+  watched_extensions = ["go"]
+
+  # The directory to watch for changes. Defaults to `.` which is the project root.
+  watched_directory = "."
+
+[log]
+  # Output log to a file or disable it completely.
+  # If output is not set, the log will be printed to stdout.
+  output = "air.log"

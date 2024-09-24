@@ -29,6 +29,8 @@ RUN apt-get install curl \
     && curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.0/migrate.linux-amd64.tar.gz | tar xvz -C /usr/local/bin \
     && chmod +x /usr/local/bin/migrate
 
+RUN curl -sSfL https://raw.githubusercontent.com/air-verse/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -41,11 +43,13 @@ RUN go mod download
 # Copy the entire source code to the container
 COPY . .
 
-# Build the Go application
-RUN go build -o main .
+# # Build the Go application
+# RUN go build -o main .
 
 # Expose the port the app will run on
 EXPOSE 8080
 
-# Run migrations and start the application
-CMD ./main
+# # Run migrations and start the application
+# CMD ./main
+
+CMD ["air", "-c", "air.toml"]

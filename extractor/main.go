@@ -68,7 +68,9 @@ func main() {
 	}
 	results := processURLs(urls)
 	fmt.Printf("results %v", results)
-	if err := makeTextEmbeddingsRequest(results); err != nil {
+	fmt.Printf("Results????")
+	batches := batchResults(results)
+	if err := makeTextEmbeddingsRequest(batches); err != nil {
 		log.Fatalf("Error making request: %v", err)
 	}
 }
@@ -131,16 +133,29 @@ func scrapeTextContent(url string) (string, error) {
 	}
 	return doc.Find(".content-and-enrichments").Text(), nil
 }
-func makeTextEmbeddingsRequest(results []Result) error {
+func batchResults(results []Result) [][]Result {
+    var batches [][]Result
+
+    for i := 0; i < len(results); i += 5 {
+        end := i + 5
+        if end > len(results) {
+            end = len(results)
+        }
+        batches = append(batches, results[i:end])
+    }
+
+    return batches
+}
+func makeTextEmbeddingsRequest(batches [][]Result) error {
+	fmt.Print("Do we make it in?")
 	baseURL := os.Getenv("BASE_URL")
 	apiKey := os.Getenv("API_KEY")
 
 	// Initialize client outside the loop
 	client := &http.Client{}
 
-	for i := 0; i < len(results); i += 5 {
-		batch := results[i:min(i+5, len(results))]
-
+	for _, batch := range batches {
+		
 		payload := map[string]interface{}{
 			"results": batch,
 		}
@@ -150,6 +165,8 @@ func makeTextEmbeddingsRequest(results []Result) error {
 			return fmt.Errorf("failed to marshal payload: %w", err)
 		}
 
+		fmt.Printf("Base url %s",fmt.Sprintf("%s/text-embeddings", baseURL))
+		
 		req, err := http.NewRequest("POST", fmt.Sprintf("%s/text-embeddings", baseURL), bytes.NewBuffer(payloadBytes))
 		if err != nil {
 			return fmt.Errorf("failed to create request: %w", err)
@@ -158,18 +175,19 @@ func makeTextEmbeddingsRequest(results []Result) error {
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("x-api-key", apiKey)
 
-		// Send the request
+	
 		resp, err := client.Do(req)
 		if err != nil {
 			return fmt.Errorf("request failed: %w", err)
 		}
-		// Always close the response body
+		
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusAccepted {
 			bodyBytes, _ := io.ReadAll(resp.Body) // Read the response body for debugging
 			return fmt.Errorf("request failed with status code: %d, response: %s", resp.StatusCode, string(bodyBytes))
 		}
+		fmt.Print("MAKE IT ALL THE WAY??")
 	}
 
 	return nil
