@@ -95,12 +95,13 @@ func ProcessPDF(filePath string) (string, error) {
 	return content, nil
 }
 func ConvertFloat32ToFloat64(input []float32) []float64 {
-    output := make([]float64, len(input))
-    for i, v := range input {
-        output[i] = float64(v)
-    }
-    return output
+	output := make([]float64, len(input))
+	for i, v := range input {
+		output[i] = float64(v)
+	}
+	return output
 }
+
 // Generates embeddings for a chunk of text
 func GenerateEmbeddings(chunk string) ([]float32, error) {
 	ctx := context.Background()

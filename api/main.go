@@ -223,7 +223,7 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 	for _, result := range results.Results {
 		wg.Add(1)
 		sem.acquire()
-		
+
 		go func(result Result) {
 			defer sem.release()
 			defer wg.Done()
@@ -252,7 +252,7 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 					newEmbedding := models.Embedding{
 						ResourceID: newResource.ID,
 						Content:    chunk,
-						Embedding: embedding,
+						Embedding:  embedding,
 					}
 					if err := tx.Create(&newEmbedding).Error; err != nil {
 						log.Printf("Embedding insertion error %v", err)
@@ -271,7 +271,7 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 	wg.Wait()
 }
 func helloHandler(w http.ResponseWriter, r *http.Request) {
-	
+
 	// Set the content type to HTML
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

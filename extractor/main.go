@@ -134,17 +134,17 @@ func scrapeTextContent(url string) (string, error) {
 	return doc.Find(".content-and-enrichments").Text(), nil
 }
 func batchResults(results []Result) [][]Result {
-    var batches [][]Result
+	var batches [][]Result
 
-    for i := 0; i < len(results); i += 5 {
-        end := i + 5
-        if end > len(results) {
-            end = len(results)
-        }
-        batches = append(batches, results[i:end])
-    }
+	for i := 0; i < len(results); i += 5 {
+		end := i + 5
+		if end > len(results) {
+			end = len(results)
+		}
+		batches = append(batches, results[i:end])
+	}
 
-    return batches
+	return batches
 }
 func makeTextEmbeddingsRequest(batches [][]Result) error {
 	fmt.Print("Do we make it in?")
@@ -155,7 +155,7 @@ func makeTextEmbeddingsRequest(batches [][]Result) error {
 	client := &http.Client{}
 
 	for _, batch := range batches {
-		
+
 		payload := map[string]interface{}{
 			"results": batch,
 		}
@@ -165,8 +165,8 @@ func makeTextEmbeddingsRequest(batches [][]Result) error {
 			return fmt.Errorf("failed to marshal payload: %w", err)
 		}
 
-		fmt.Printf("Base url %s",fmt.Sprintf("%s/text-embeddings", baseURL))
-		
+		fmt.Printf("Base url %s", fmt.Sprintf("%s/text-embeddings", baseURL))
+
 		req, err := http.NewRequest("POST", fmt.Sprintf("%s/text-embeddings", baseURL), bytes.NewBuffer(payloadBytes))
 		if err != nil {
 			return fmt.Errorf("failed to create request: %w", err)
@@ -175,12 +175,11 @@ func makeTextEmbeddingsRequest(batches [][]Result) error {
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("x-api-key", apiKey)
 
-	
 		resp, err := client.Do(req)
 		if err != nil {
 			return fmt.Errorf("request failed: %w", err)
 		}
-		
+
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusAccepted {

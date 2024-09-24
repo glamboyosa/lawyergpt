@@ -7,6 +7,7 @@ import (
 	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
+
 type PostgresVector []float32
 
 // Resource struct
@@ -25,7 +26,7 @@ type Embedding struct {
 	ResourceID string    `gorm:"type:varchar(191);index"`
 	Resource   Resource  `gorm:"foreignKey:ResourceID;constraint:OnDelete:CASCADE"`
 	Content    string    `gorm:"type:text;not null"`
-	Embedding  []float32   `gorm:"type:vector;not null"`
+	Embedding  []float32 `gorm:"type:vector;not null"`
 	CreatedAt  time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	UpdatedAt  time.Time `gorm:"not null;default:CURRENT_TIMESTAMP;ON UPDATE CURRENT_TIMESTAMP"`
 }
