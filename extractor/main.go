@@ -20,13 +20,15 @@ type Result struct {
 	URL         string `json:"url"`
 	TextContent string `json:"textContent"`
 }
+
 func min(a, b int) int {
 	if a < b {
 		return a
 	}
 	return b
 }
-	// loadEnv if it exists in development
+
+// loadEnv if it exists in development
 func LoadEnv(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
