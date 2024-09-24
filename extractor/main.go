@@ -61,7 +61,7 @@ func main() {
 	}
 	results := processURLs(urls)
 	fmt.Printf("results %v", results)
-	if err := makeTextEmbeddingsRequest(results); err!=nil {
+	if err := makeTextEmbeddingsRequest(results); err != nil {
 		log.Fatalf("Error making request: %v", err)
 	}
 }

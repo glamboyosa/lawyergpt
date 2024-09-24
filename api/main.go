@@ -31,6 +31,7 @@ type Result struct {
 	URL         string `json:"url"`
 	TextContent string `json:"textContent"`
 }
+
 // runMigrations uses golang-migrate to apply database migrations
 func RunMigrations() error {
 	fmt.Printf("db url %s", pkg.GetDBURL())
@@ -204,9 +205,9 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	wg.Wait()
 }
-func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Request){
+func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
-	var results []Result 
+	var results []Result
 	err := json.NewDecoder(r.Body).Decode(&results)
 
 	if err != nil {
@@ -218,40 +219,40 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 		wg.Add(1)
 		sem.acquire()
 
-		go func(result Result){
-		defer sem.release()
-		defer wg.Done()
-		chunks := pkg.ChunkText(result.TextContent, 2000)
-		for _, chunk := range chunks {
-			embedding, err := pkg.GenerateEmbeddings(chunk)
+		go func(result Result) {
+			defer sem.release()
+			defer wg.Done()
+			chunks := pkg.ChunkText(result.TextContent, 2000)
+			for _, chunk := range chunks {
+				embedding, err := pkg.GenerateEmbeddings(chunk)
 
-			if err != nil {
-				continue
+				if err != nil {
+					continue
+				}
+
+				err = ah.db.Session(&gorm.Session{}).Transaction(func(tx *gorm.DB) error {
+					newResource := models.Resource{
+						URL:     &result.URL,
+						Content: result.TextContent,
+					}
+					if err := tx.Create(&newResource).Error; err != nil {
+						return err
+					}
+					log.Printf("Created resource with ID: %s", newResource.ID)
+					// create new embedding
+					newEmbedding := models.Embedding{
+						ResourceID: newResource.ID,
+						Content:    chunk,
+						Embedding:  embedding,
+					}
+					if err := tx.Create(&newEmbedding).Error; err != nil {
+						return err
+					}
+					log.Printf("Created embedding with ID: %s", newEmbedding.ID)
+
+					return nil
+				})
 			}
-
-			err = ah.db.Session(&gorm.Session{}).Transaction(func (tx *gorm.DB) error {
-				newResource := models.Resource{
-					URL: &result.URL,
-					Content: result.TextContent,
-				}
-				if err := tx.Create(&newResource).Error; err != nil {
-					return err
-				}
-				log.Printf("Created resource with ID: %s", newResource.ID)
-				// create new embedding 
-				newEmbedding := models.Embedding{
-					ResourceID: newResource.ID,
-					Content: chunk,
-					Embedding: embedding,
-				}
-				if err := tx.Create(&newEmbedding).Error; err != nil {
-					return err
-				}
-				log.Printf("Created embedding with ID: %s", newEmbedding.ID)
-
-				return nil
-			})
-		}	
 		}(result)
 	}
 	w.WriteHeader(http.StatusAccepted)
