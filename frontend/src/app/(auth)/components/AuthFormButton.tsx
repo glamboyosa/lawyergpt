@@ -7,23 +7,25 @@ import { useFormStatus } from "react-dom";
 import { toast } from "sonner";
 import { Spinner } from "./Spinner";
 const buttonCopy = {
-	idle: "Send me a login link",
-	pending: <Spinner size={16} color="rgba(255, 255, 255, 0.65)" />,
-	success: "Login link sent!",
+	idle: "Submit",
+	pending: <Spinner size={20} color="#fff" />,
+	success: "Successful!",
 };
 export function SubmitButton({ state }: { state: { status: string } }) {
 	const { pending } = useFormStatus();
 	const router = useRouter();
-	const buttonState = state.status === "idle" ? state.status : pending ? "pending" : "success";
-	if (buttonState === "success") {
-		setTimeout(() => {
-			router.push("/");
-		}, 1000);
-	}
+	const buttonState = state.status === "success" ? "success" : pending ? "pending" : state.status as "idle" | "pending" | "success"
+	console.log(buttonState, pending, state.status)
+	
 
 	useEffect(() => {
 		if (state.status === "error") {
 			toast.error("An error occurred");
+		}
+		if (state.status === "success") {
+			setTimeout(() => {
+				router.push("/");
+			}, 1000);
 		}
 	}, [state]);
 	return (

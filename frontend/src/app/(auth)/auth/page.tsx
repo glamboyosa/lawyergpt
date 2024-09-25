@@ -1,7 +1,7 @@
 "use client";
 
 import { logIn, signUp } from "@/app/(auth)/actions/auth";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { SubmitButton } from "../components/AuthFormButton";
 
 export default function AuthForm() {
@@ -12,14 +12,23 @@ export default function AuthForm() {
 	const [signUpFormState, signupFormAction] = useActionState(signUp, {
 		status: "idle",
 	});
+	const ref = useRef<HTMLFormElement | null>(null)
 	return (
-		<div className="w-full max-w-md space-y-8 rounded-lg border-4 border-stone-800 bg-stone-100 p-8 shadow-[8px_8px_0px_0px_rgba(28,25,23,1)]">
+		<div className="flex h-screen items-center justify-center">
+			<div className="w-full max-w-md space-y-8 rounded-lg border-4 border-stone-800 bg-stone-100 p-8 shadow-[8px_8px_0px_0px_rgba(28,25,23,1)]">
 			<div>
 				<h2 className="mt-6 text-center font-extrabold text-3xl text-stone-800">
 					{isLogin ? "Log in" : "Sign up"}
 				</h2>
 			</div>
-			<form className="mt-8 space-y-6" action={isLogin ? loginFormAction : signupFormAction}>
+				<form ref={ref} className="mt-8 space-y-6" action={(formData) => {
+					if (isLogin) {
+						loginFormAction(formData)
+					} else {
+						signupFormAction(formData)
+					}
+					ref.current?.reset()
+			}}>
 				{!isLogin && (
 					<div>
 						<label htmlFor="name" className="mb-2 block font-bold text-sm text-stone-700">
@@ -62,6 +71,7 @@ export default function AuthForm() {
 					{isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}
 				</button>
 			</div>
+		</div>
 		</div>
 	);
 }

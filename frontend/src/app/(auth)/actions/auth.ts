@@ -2,80 +2,110 @@
 
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/user";
+import { env } from "@/lib/env";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { z } from "zod";
 type State = {
-	status: string;
+  status: string;
 };
 const signUpSchema = z.object({
-	name: z.string().min(1, "Name is required"),
-	email: z.string().email("Invalid email address"),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
 });
 
 const logInSchema = z.object({
-	email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
 });
 
 export async function signUp(prevState: State, formData: FormData) {
-	try {
-		const validatedFields = signUpSchema.safeParse({
-			name: formData.get("name"),
-			email: formData.get("email"),
-		});
+  try {
+    const validatedFields = signUpSchema.safeParse({
+      name: formData.get("name"),
+      email: formData.get("email"),
+    });
 
-		if (!validatedFields.success) {
-			return { status: "Invalid input. Please check your details." };
-		}
+    if (!validatedFields.success) {
+      return { status: "error" };
+    }
 
-		await db.insert(users).values({
-			name: validatedFields.data.name,
-			email: validatedFields.data.email,
-		});
+    const u = await db
+      .insert(users)
+      .values({
+        name: validatedFields.data.name,
+        email: validatedFields.data.email,
+      })
+      .returning({
+        id: users.id,
+      });
 
-		cookies().set("user", validatedFields.data.email, {
-			expires: 604800000, // 7 days
-		});
-		cookies().set("name", validatedFields.data.name, {
-			expires: 604800000, // 7 days
-		});
+    cookies().set("userId", u[0].id, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
+    cookies().set("user", validatedFields.data.email, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
+    cookies().set("name", validatedFields.data.name, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
 
-		return { status: "success" };
-	} catch {
-		return { status: "error" };
-	}
+    return { status: "success" };
+  } catch {
+    return { status: "error" };
+  }
 }
 
 export async function logIn(prevState: State, formData: FormData) {
-	try {
-		const validatedFields = logInSchema.safeParse({
-			email: formData.get("email"),
-		});
+  try {
+    const validatedFields = logInSchema.safeParse({
+      email: formData.get("email"),
+    });
 
-		if (!validatedFields.success) {
-			return { status: "Invalid email address." };
-		}
+    if (!validatedFields.success) {
+      return { status: "error" };
+    }
 
-		const existingUser = await db
-			.select({ name: users.name })
-			.from(users)
-			.where(eq(users.email, validatedFields.data.email));
+    const existingUser = await db
+      .select({ name: users.name, id: users.id })
+      .from(users)
+      .where(eq(users.email, validatedFields.data.email));
 
-		if (!existingUser.length) {
-			return { status: "User not found." };
-		}
+    if (!existingUser.length) {
+      return { status: "error" };
+    }
+    console.log("existing user", existingUser);
+    const { name, id } = existingUser[0];
 
-		const { name } = existingUser[0];
+    cookies().set("userId", id, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
+    cookies().set("user", validatedFields.data.email, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
+    cookies().set("name", name, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
 
-		cookies().set("user", validatedFields.data.email, {
-			expires: 604800000, // 7 days
-		});
-		cookies().set("name", name, {
-			expires: 604800000, // 7 days
-		});
-
-		return { status: "success" };
-	} catch {
-		return { status: "error" };
-	}
+    return { status: "success" };
+  } catch {
+    return { status: "error" };
+  }
 }

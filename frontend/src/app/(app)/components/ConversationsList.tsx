@@ -1,11 +1,14 @@
 import { db } from "@/lib/db";
 import { conversations } from "@/lib/db/schema/conversations";
+import { eq } from "drizzle-orm";
 import { ArrowRight, MessageSquarePlus } from "lucide-react";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense, use } from "react";
 
 async function fetchConversations() {
-	// await db.select().from(conversations)
+	// const userId = cookies().get('userId')!.value
+	//  await db.select().from(conversations).where(eq(conversations.userId, userId))
 	await new Promise((resolve) => setTimeout(resolve, 2000));
 	return [
 		{
