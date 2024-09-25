@@ -1,9 +1,9 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { hasAuthCookie } from "./lib/auth";
 
 export function middleware(request: NextRequest) {
-  const userCookie = cookies().has("userId");
+  const userCookie = hasAuthCookie();
 
   // Check if the current path is not "/auth"
   if (!request.nextUrl.pathname.startsWith("/auth")) {

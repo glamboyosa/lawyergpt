@@ -1,10 +1,12 @@
 "use server";
-
+import "server-only";
+import { hasAuthCookie } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/user";
 import { env } from "@/lib/env";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 type State = {
   status: string;
@@ -108,4 +110,13 @@ export async function logIn(prevState: State, formData: FormData) {
   } catch {
     return { status: "error" };
   }
+}
+export async function logOut() {
+  const isAllowed = hasAuthCookie();
+  if (isAllowed) {
+    cookies().delete("userId");
+    cookies().delete("user");
+    cookies().delete("name");
+  }
+  redirect("/auth");
 }

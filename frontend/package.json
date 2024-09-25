@@ -34,6 +34,7 @@
     "react": "19.0.0-rc-5d19e1c8-20240923",
     "react-dom": "19.0.0-rc-5d19e1c8-20240923",
     "react-dropzone": "^14.2.3",
+    "server-only": "^0.0.1",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
