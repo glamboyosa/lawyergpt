@@ -1,6 +1,5 @@
 import ConversationsList from "@/app/(app)/components/ConversationsList";
 import FileUploadClient from "@/app/(app)/components/FileUpload";
-import { LogOut } from "lucide-react";
 import { cookies } from "next/headers";
 import { SignOutButton } from "./(auth)/components/SignOutButton";
 
@@ -18,9 +17,8 @@ export default function Home() {
 			<header className="bg-white shadow-[0px_2px_0px_0px_rgba(120,113,108,1)]">
 				<div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
 					<h1 className="font-bold text-2xl text-stone-800">LawyerGPT</h1>
-				
-				<SignOutButton/>	
-				
+
+					<SignOutButton />
 				</div>
 			</header>
 

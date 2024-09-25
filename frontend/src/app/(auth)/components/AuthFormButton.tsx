@@ -14,18 +14,21 @@ const buttonCopy = {
 export function SubmitButton({ state }: { state: { status: string } }) {
 	const { pending } = useFormStatus();
 	const router = useRouter();
-	const buttonState = state.status === "success" ? "success" : pending ? "pending" : state.status as "idle" | "pending" | "success"
-	console.log(buttonState, pending, state.status)
-	
-
+	const buttonState =
+		state.status === "success"
+			? "success"
+			: pending
+				? "pending"
+				: (state.status as "idle" | "pending" | "success");
+	console.log(buttonState, pending, state.status);
+	if (buttonState === "success") {
+		setTimeout(() => {
+			router.push("/");
+		}, 1000);
+	}
 	useEffect(() => {
 		if (state.status === "error") {
 			toast.error("An error occurred");
-		}
-		if (state.status === "success") {
-			setTimeout(() => {
-				router.push("/");
-			}, 1000);
 		}
 	}, [state]);
 	return (

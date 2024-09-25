@@ -1,8 +1,4 @@
-import { db } from "@/lib/db";
-import { conversations } from "@/lib/db/schema/conversations";
-import { eq } from "drizzle-orm";
 import { ArrowRight, MessageSquarePlus } from "lucide-react";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense, use } from "react";
 
