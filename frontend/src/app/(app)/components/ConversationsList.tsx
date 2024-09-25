@@ -1,8 +1,11 @@
+import { db } from "@/lib/db";
+import { conversations } from "@/lib/db/schema/conversations";
 import { ArrowRight, MessageSquarePlus } from "lucide-react";
 import Link from "next/link";
 import { Suspense, use } from "react";
 
 async function fetchConversations() {
+	// await db.select().from(conversations)
 	await new Promise((resolve) => setTimeout(resolve, 2000));
 	return [
 		{
