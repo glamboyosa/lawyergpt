@@ -16,6 +16,6 @@ export const env = createEnv({
 		NEXT_PUBLIC_UPLOADER_URL: process.env.NEXT_PUBLIC_UPLOADER_URL,
 		NODE_ENV: process.env.NODE_ENV,
 		DATABASE_URL: process.env.DATABASE_URL,
-		GEMINI_API_KEY: process.env.GEMINI_API_KEYs,
+		GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 	},
 });

@@ -6,9 +6,10 @@ import { eq } from "drizzle-orm";
 import { ArrowRight, MessageSquareDot } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { Suspense, use } from "react";
+import { Suspense, use, useState } from "react";
 import { toast } from "sonner";
 import { createNewConversation } from "../actions/actions";
+import ToastWrapper from "@/components/ToastWrapper";
 async function fetchConversations() {
 	const userId = cookies().get("userId");
 	if (userId) {
@@ -52,19 +53,21 @@ async function fetchConversations() {
 
 function ConversationsListContent() {
 	const conversations = use(fetchConversations());
+	let res = ""
+	// To-do, figure out actions with server components
 	const handleCreateConversation = async () => {
+		"use server"
 		const userId = cookies().get("userId")?.value;
-		const result = await createNewConversation(userId as string);
-		if (typeof result === "string") {
-			toast.error(result);
-		}
+		await createNewConversation(userId as string);
+		
 	};
+	console.log(res)
 	if (conversations.length === 0) {
 		return (
-			<div className="text-center">
+			<div className="text-center flex items-center justify-center flex-col">
 				<svg
-					width="960"
-					height="960"
+					width="285"
+					height="285"
 					viewBox="0 0 960 960"
 					fill="none"
 					xmlns="http://www.w3.org/2000/svg"
@@ -1103,6 +1106,7 @@ function ConversationsListContent() {
 						New Conversation
 					</Button>
 				</form>
+				
 			</div>
 		);
 	}
@@ -1111,8 +1115,9 @@ function ConversationsListContent() {
 		<div className="w-full max-w-4xl">
 			<div className="mb-6 flex items-center justify-between">
 				<h3 className="font-bold text-stone-800 text-xl">Your Conversations</h3>
-				<form action={handleCreateConversation}>
+				<form>
 					<Button
+						onClick={()=> {}}
 						type="submit"
 						className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
 					>
@@ -1135,6 +1140,7 @@ function ConversationsListContent() {
 					</Link>
 				))}
 			</div>
+		
 		</div>
 	);
 }
