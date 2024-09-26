@@ -1,4 +1,5 @@
 "use server";
+import { hasAuthCookie } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   conversations,
@@ -8,6 +9,10 @@ import { redirect } from "next/navigation";
 import "server-only";
 
 export async function createNewConversation(userId: string) {
+  const isAllowed = hasAuthCookie();
+  if (!isAllowed) {
+    redirect("/auth");
+  }
   try {
     const convo = insertConvoSchema.parse({
       userId,
