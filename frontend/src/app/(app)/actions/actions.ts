@@ -15,7 +15,6 @@ export async function createNewConversation(userId: string) {
     redirect("/auth");
   }
   try {
-    throw new Error("Error");
     const convo = insertConvoSchema.parse({
       userId,
       title: "",
