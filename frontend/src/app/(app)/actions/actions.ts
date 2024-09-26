@@ -1,4 +1,5 @@
 "use server";
+import "server-only";
 import { hasAuthCookie } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -6,7 +7,6 @@ import {
   insertConvoSchema,
 } from "@/lib/db/schema/conversations";
 import { redirect } from "next/navigation";
-import "server-only";
 
 export async function createNewConversation(userId: string) {
   const isAllowed = hasAuthCookie();
