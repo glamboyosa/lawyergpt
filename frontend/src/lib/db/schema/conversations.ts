@@ -53,8 +53,14 @@ export const insertConvoSchema = createSelectSchema(conversations).omit({
 });
 
 export const ConvoSchema = createSelectSchema(conversations);
-
+export const messagesSchema = createSelectSchema(messages).omit({
+  conversationId: true,
+});
 export type NewMessageParam = z.infer<typeof insertMessageSchema>;
+
+export type MessageType = z.infer<typeof messagesSchema> & {
+  role: "assistant" | "user" | "system" | "data";
+};
 
 export type ConversationsType = z.infer<typeof ConvoSchema>;
 

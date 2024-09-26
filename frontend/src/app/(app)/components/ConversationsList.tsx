@@ -1,24 +1,26 @@
+import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
-import { conversations as conversationsTable, ConversationsType } from "@/lib/db/schema/conversations";
+import { conversations as conversationsTable } from "@/lib/db/schema/conversations";
+import { formatDistanceToNow } from "date-fns";
 import { eq } from "drizzle-orm";
-import { ArrowRight, MessageSquareDot, MessageSquarePlus } from "lucide-react";
+import { ArrowRight, MessageSquareDot } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense, use } from "react";
-import {formatDistanceToNow} from 'date-fns'
-import { Button } from "@/components/ui/button";
-import { createNewConversation } from "../actions/actions";
 import { toast } from "sonner";
+import { createNewConversation } from "../actions/actions";
 async function fetchConversations() {
-	const userId = cookies().get('userId')
+	const userId = cookies().get("userId");
 	if (userId) {
-		const conversations = await db.select().from(conversationsTable).where(eq(conversationsTable.userId, userId.value))
-		return conversations
-	} else {
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-	return [];
+		const conversations = await db
+			.select()
+			.from(conversationsTable)
+			.where(eq(conversationsTable.userId, userId.value));
+		return conversations;
 	}
-	
+	await new Promise((resolve) => setTimeout(resolve, 2000));
+	return [];
+
 	// await new Promise((resolve) => setTimeout(resolve, 2000));
 	// return [
 	// 	{
@@ -51,12 +53,12 @@ async function fetchConversations() {
 function ConversationsListContent() {
 	const conversations = use(fetchConversations());
 	const handleCreateConversation = async () => {
-		const userId = cookies().get('userId')!.value
-		const result = await createNewConversation(userId)
-		if (typeof result === 'string') {
-			toast.error("Unable to start new conversation")
-		  }
-	}
+		const userId = cookies().get("userId")?.value;
+		const result = await createNewConversation(userId as string);
+		if (typeof result === "string") {
+			toast.error(result);
+		}
+	};
 	if (conversations.length === 0) {
 		return (
 			<div className="text-center">
@@ -1094,7 +1096,7 @@ function ConversationsListContent() {
 				<p className="mt-1 text-sm text-stone-500">Get started by creating a new conversation.</p>
 				<form action={handleCreateConversation} className="mt-6">
 					<Button
-					type="submit"
+						type="submit"
 						className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
 					>
 						<MessageSquareDot className="mr-2 size-5" aria-hidden="true" />
@@ -1110,13 +1112,13 @@ function ConversationsListContent() {
 			<div className="mb-6 flex items-center justify-between">
 				<h3 className="font-bold text-stone-800 text-xl">Your Conversations</h3>
 				<form action={handleCreateConversation}>
-				<Button
-					type="submit"
-					className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
-				>
-					Start Conversation
-					<ArrowRight className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
-				</Button>
+					<Button
+						type="submit"
+						className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
+					>
+						Start Conversation
+						<ArrowRight className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+					</Button>
 				</form>
 			</div>
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1126,7 +1128,7 @@ function ConversationsListContent() {
 							<div className="flex items-start justify-between">
 								<h4 className="font-bold text-lg text-stone-800">{conversation.title}</h4>
 								<span className="inline-flex whitespace-nowrap rounded-full border-2 border-stone-400 bg-stone-200 px-2 py-1 font-semibold text-stone-800 text-xs leading-5">
-									{formatDistanceToNow(conversation.createdAt, {addSuffix: true})}
+									{formatDistanceToNow(conversation.createdAt, { addSuffix: true })}
 								</span>
 							</div>
 						</div>
