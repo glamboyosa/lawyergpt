@@ -56,7 +56,7 @@ export default function FileUploadClient() {
 			<p className="mt-2 font-bold text-sm text-stone-800">
 				{isDragActive
 					? "Drop the files here..."
-					: "Drag 'n' drop some law files here, or click to select files"}
+					: "Drag 'n' drop some legal docs here, or click to select files"}
 			</p>
 			{files.length > 0 && (
 				<div className="mt-4">

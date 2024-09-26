@@ -40,7 +40,7 @@ export async function signUp(prevState: State, formData: FormData) {
 			.returning({
 				id: users.id,
 			});
-
+		// ideally you make it a dictionary then deserialise but idgaf :)
 		cookies().set("userId", u[0].id, {
 			httpOnly: true,
 			secure: env.NODE_ENV === "production",
