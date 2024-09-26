@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@biomejs/biome': 1.9.2
   '@radix-ui/react-icons': ^1.3.0
+  '@radix-ui/react-slot': ^1.1.0
   '@t3-oss/env-nextjs': ^0.11.1
   '@types/node': ^20
   '@types/react': ^18
@@ -35,6 +36,7 @@ specifiers:
 
 dependencies:
   '@radix-ui/react-icons': 1.3.0_5uyygtth7xs2abvxuexsctsfiq
+  '@radix-ui/react-slot': 1.1.0_akny2q5qrtdgcxmpk7iro4qbfu
   '@t3-oss/env-nextjs': 0.11.1_dqq4a2en4nots3dh3xut264en4
   class-variance-authority: 0.7.0
   clsx: 2.1.1
@@ -1141,11 +1143,38 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@radix-ui/react-compose-refs/1.1.0_akny2q5qrtdgcxmpk7iro4qbfu:
+    resolution: {integrity: sha512-b4inOtiaOnYf9KWyO3jAeeCG6FeyfY6ldiEPanbUjWd+xIk5wZeHa8yVwmrJ2vderhu/BQvzCrJI0lHd+wIiqw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.3.8
+      react: 19.0.0-rc-5d19e1c8-20240923
+    dev: false
+
   /@radix-ui/react-icons/1.3.0_5uyygtth7xs2abvxuexsctsfiq:
     resolution: {integrity: sha512-jQxj/0LKgp+j9BiTXz3O3sgs26RNet2iLWmsPyRz2SIcR4q/4SbazXfnYwbAr+vLYKSfc7qxzyGQA1HLlYiuNw==}
     peerDependencies:
       react: ^16.x || ^17.x || ^18.x
     dependencies:
+      react: 19.0.0-rc-5d19e1c8-20240923
+    dev: false
+
+  /@radix-ui/react-slot/1.1.0_akny2q5qrtdgcxmpk7iro4qbfu:
+    resolution: {integrity: sha512-FUCf5XMfmW4dtYl69pdS4DbxKy8nj4M7SafBgPllysxmdachynNflAdp/gCsnYWNDnge6tI9onzMp5ARYc1KNw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.0_akny2q5qrtdgcxmpk7iro4qbfu
+      '@types/react': 18.3.8
       react: 19.0.0-rc-5d19e1c8-20240923
     dev: false
 
