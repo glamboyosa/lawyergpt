@@ -46,7 +46,7 @@ export default function ConversationContent({
 	}, [messages]);
 	useEffect(() => {
 		if (error) {
-			toast.error(error.message);
+			toast.error(error.message || "Something went wrong");
 		}
 	}, [error]);
 	return (
