@@ -66,7 +66,10 @@ npm install -g pnpm
    pnpm run dev
    ```
 
-4. Access the app at `http://localhost:3000`.
+4. Access the app at `https://localhost:3000`.
+
+> [!NOTE]
+> We are running the app in development [through HTTPS](https://vercel.com/guides/access-nextjs-localhost-https-certificate-self-signed)
 
 ### 2. **API (Go HTTP API)**
 
