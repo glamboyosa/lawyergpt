@@ -80,7 +80,7 @@ The API can be run using Docker, with the project utilizing a makefile for ease 
 1. Copy the environment file:
 
    ```bash
-   cp .env.example .env
+   cp .env.example .env.development
    ```
 
 2. Obtain the **API_KEY** required for the Google Gemini API by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) and add it to the `.env` file under `API_KEY`.
@@ -102,6 +102,14 @@ The API can be run using Docker, with the project utilizing a makefile for ease 
 ### 3. **Extractor (Go Script)**
 
 The extractor scrapes Nigerian legal websites for financial law judgments and sends the results to the API. The process is managed via the makefile.
+
+#### Prerequisite: **Set up the `.env` file**
+
+1. Copy the environment file:
+
+   ```bash
+   cp .env.example .env.development
+   ```
 
 **Steps:**
 
