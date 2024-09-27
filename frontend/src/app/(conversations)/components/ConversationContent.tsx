@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import type { MessageType } from "@/lib/db/schema/conversations";
 import { cn } from "@/lib/utils";
 import { useChat } from "ai/react";
 import { Send, User } from "lucide-react";
@@ -10,17 +11,19 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { generateTitle } from "../actions/conversations";
 import { ThinkingAnimation } from "./ThinkingAnimation";
-import { MessageType } from "@/lib/db/schema/conversations";
 
 const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
 
-export default function ConversationContent({ conversationId, initialMessages }: { conversationId: string, initialMessages: Array<MessageType> }) {
+export default function ConversationContent({
+	conversationId,
+	initialMessages,
+}: { conversationId: string; initialMessages: Array<MessageType> }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [isFirstMessage, setIsFirstMessage] = useState(true);
 	const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
 		maxSteps: 3,
-        api: `/api/chat/${conversationId}`,
-        initialMessages,
+		api: `/api/chat/${conversationId}`,
+		initialMessages,
 		onFinish: async (message) => {
 			if (isFirstMessage) {
 				const result = await generateTitle(
@@ -35,7 +38,6 @@ export default function ConversationContent({ conversationId, initialMessages }:
 			}
 		},
 	});
-
 
 	useEffect(() => {
 		if (messages) {

@@ -6,10 +6,8 @@ import { eq } from "drizzle-orm";
 import { ArrowRight, MessageSquareDot } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { Suspense, use, useState } from "react";
-import { toast } from "sonner";
+import { Suspense, use } from "react";
 import { createNewConversation } from "../actions/actions";
-import ToastWrapper from "@/components/ToastWrapper";
 async function fetchConversations() {
 	const userId = cookies().get("userId");
 	if (userId) {
@@ -53,18 +51,17 @@ async function fetchConversations() {
 
 function ConversationsListContent() {
 	const conversations = use(fetchConversations());
-	let res = ""
+	const res = "";
 	// To-do, figure out actions with server components
 	const handleCreateConversation = async () => {
-		"use server"
+		"use server";
 		const userId = cookies().get("userId")?.value;
 		await createNewConversation(userId as string);
-		
 	};
-	console.log(res)
+	console.log(res);
 	if (conversations.length === 0) {
 		return (
-			<div className="text-center flex items-center justify-center flex-col">
+			<div className="flex flex-col items-center justify-center text-center">
 				<svg
 					width="285"
 					height="285"
@@ -1106,7 +1103,6 @@ function ConversationsListContent() {
 						New Conversation
 					</Button>
 				</form>
-				
 			</div>
 		);
 	}
@@ -1117,7 +1113,7 @@ function ConversationsListContent() {
 				<h3 className="font-bold text-stone-800 text-xl">Your Conversations</h3>
 				<form>
 					<Button
-						onClick={()=> {}}
+						onClick={() => {}}
 						type="submit"
 						className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
 					>
@@ -1140,7 +1136,6 @@ function ConversationsListContent() {
 					</Link>
 				))}
 			</div>
-		
 		</div>
 	);
 }

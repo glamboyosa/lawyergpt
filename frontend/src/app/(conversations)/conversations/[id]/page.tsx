@@ -1,12 +1,15 @@
+import { db } from "@/lib/db";
+import { type MessageType, messages as messageTable } from "@/lib/db/schema/conversations";
+import { eq } from "drizzle-orm";
 import { Suspense } from "react";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationsSidebar from "../../components/ConversationsSidebar";
-import { db } from "@/lib/db";
-import {  messages as messageTable, MessageType } from "@/lib/db/schema/conversations";
-import { eq } from "drizzle-orm";
 
 export default async function ConversationPage({ params }: { params: { id: string } }) {
-    const messages = await db.select().from(messageTable).where(eq(messageTable.conversationId, params.id))
+	const messages = await db
+		.select()
+		.from(messageTable)
+		.where(eq(messageTable.conversationId, params.id));
 	return (
 		<div className="flex h-screen bg-stone-100 font-mono">
 			{/* Mobile Sidebar Toggle */}
@@ -14,7 +17,10 @@ export default async function ConversationPage({ params }: { params: { id: strin
 			{/* Main content */}
 			<div className="flex flex-1 flex-col">
 				<Suspense fallback={<ConversationSkeleton />}>
-					<ConversationContent conversationId={params.id} initialMessages={messages as Array<MessageType>} />
+					<ConversationContent
+						conversationId={params.id}
+						initialMessages={messages as Array<MessageType>}
+					/>
 				</Suspense>
 			</div>
 		</div>

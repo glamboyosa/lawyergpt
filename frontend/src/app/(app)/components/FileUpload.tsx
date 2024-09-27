@@ -58,9 +58,7 @@ export default function FileUploadClient() {
 					? "Drop the files here..."
 					: "Drag 'n' drop some legal docs here, or click to select files"}
 			</p>
-			<p className="mt-1 font-bold text-xs text-stone-800">
-				(We support PDFs and DOCX)
-			</p>
+			<p className="mt-1 font-bold text-stone-800 text-xs">(We support PDFs and DOCX)</p>
 			{files.length > 0 && (
 				<div className="mt-4">
 					<h4 className="mb-2 font-bold text-sm text-stone-800">Files:</h4>

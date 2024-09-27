@@ -1,16 +1,16 @@
 import ConversationsList from "@/app/(app)/components/ConversationsList";
 import FileUploadClient from "@/app/(app)/components/FileUpload";
+import ToastWrapper from "@/components/ToastWrapper";
 import { cookies } from "next/headers";
 import { SignOutButton } from "./(auth)/components/SignOutButton";
-import ToastWrapper from "@/components/ToastWrapper";
 
 export default function Home({
-	searchParams
+	searchParams,
 }: {
-	searchParams: { error?: string }
-	}) {
-	const error = searchParams.error ? decodeURIComponent(searchParams.error) : null
-	console.log("Error query param", error)
+	searchParams: { error?: string };
+}) {
+	const error = searchParams.error ? decodeURIComponent(searchParams.error) : null;
+	console.log("Error query param", error);
 	const currentHour = new Date().getHours();
 	let greeting = "Good morning";
 	if (currentHour >= 12 && currentHour < 18) {

@@ -1,6 +1,6 @@
 "use server";
 import "server-only";
-import { generateTextInstruction, generateTextSystemPrompt } from "@/lib/utils";
+import { generateTextInstruction, generateTextSystemPrompt } from "@/lib/ai/prompts";
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 const model = google("gemini-1.5-flash", {
