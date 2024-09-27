@@ -134,6 +134,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	sem := newSemaphore(numSemaphore)
 	for _, fileHeader := range files {
 		if fileHeader.Size > maxSize {
+			log.Print("File exceeds")
 			http.Error(w, "File exceeds size limit", http.StatusRequestEntityTooLarge)
 			return
 		}

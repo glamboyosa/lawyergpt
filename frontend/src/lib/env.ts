@@ -15,7 +15,7 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_UPLOADER_URL: z.string().url(),
-    NEXT_PUBLIC_API_KEY: z.string().min(4).max(5),
+    NEXT_PUBLIC_API_KEY: z.string().min(4),
   },
   // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
   runtimeEnv: {

@@ -5,8 +5,22 @@ services:
       context: .
       # Correct the path to your Dockerfile
       dockerfile: dockerfile.dev
-    ports:
-      - 8080:8080
+    expose:
+      - 8080
     # Important to bind/mount your codebase dir to /app dir for live reload
     volumes:
       - ./:/app
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

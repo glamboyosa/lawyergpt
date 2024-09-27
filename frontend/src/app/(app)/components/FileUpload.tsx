@@ -9,8 +9,9 @@ import { toast } from "sonner";
 export default function FileUploadClient() {
 	const [files, setFiles] = useState<Array<File>>([]);
 	const [uploading, setUploading] = useState(false);
-
+	const [error, setError] = useState(false)
 	const onDrop = useCallback(async (acceptedFiles: Array<File>) => {
+		setError(false)
 		const files = acceptedFiles.map((file) => {
 			const nameParts = file.name.split(".");
 			const ext = nameParts.pop();
@@ -21,6 +22,7 @@ export default function FileUploadClient() {
 			}
 			return file;
 		});
+		console.log("Files are",files)
 		setFiles(files);
 		setUploading(true);
 		const formData = new FormData();
@@ -35,16 +37,22 @@ export default function FileUploadClient() {
 				body: formData,
 				headers: {
 					'x-api-key':  env.NEXT_PUBLIC_API_KEY
-				}
+				},
+				cache: "no-store"
 			})
 			if (r.status !== 202) {
 				throw new Error("Something went wrong uploading files")
 			} else {
 				toast("File upload in the works")
+				setFiles([])
+				setUploading(false)
+				setError(false)
 			}
 		} catch (error) {
 			const e = error as Error
 			toast.error(e.message)
+			setError(true)
+			setUploading(false)
 		}
 	}, []);
 
@@ -90,7 +98,7 @@ export default function FileUploadClient() {
 								<span className="truncate text-sm text-stone-600">{file.name}</span>
 								<button
 									type="button"
-									style={{ pointerEvents: "none" }}
+									style={{ pointerEvents: error ? "auto" : "none" }}
 									onClick={() => removeFile(file)}
 									className="text-stone-400 hover:text-stone-600"
 								>
