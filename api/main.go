@@ -229,8 +229,10 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 				case ".pdf":
 					content, processError = pkg.ProcessPDF(tempFile.Name())
 					if processError != nil {
+						log.Print("Hey")
 						// Fallback to OCR for PDF errors
 						content, processError = pkg.ProcessOCR(tempFile.Name())
+						log.Print("OCR Content",content)
 					}
 				case ".docx":
 					log.Print("Make it in here?")
@@ -248,7 +250,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 				}
 
 				// Chunk content and generate embeddings
-				chunks := pkg.ChunkText(content, 4000)
+				chunks := pkg.ChunkText(content, 7500)
 				log.Printf("Processed file %s into %d chunks", fileHeader.Filename, len(chunks))
 
 				for _, chunk := range chunks {

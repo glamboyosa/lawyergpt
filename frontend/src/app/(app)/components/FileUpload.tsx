@@ -3,15 +3,25 @@
 import { env } from "@/lib/env";
 import { Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { FileRejection, useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-
 export default function FileUploadClient() {
 	const [files, setFiles] = useState<Array<File>>([]);
 	const [uploading, setUploading] = useState(false);
 	const [error, setError] = useState(false)
-	const onDrop = useCallback(async (acceptedFiles: Array<File>) => {
+	
+	const onDrop = useCallback(async (acceptedFiles: Array<File>, fileRejections: Array<FileRejection>) => {
+		console.log(fileRejections)
+		if (fileRejections.length > 0) {
+			fileRejections.forEach(({ file, errors }) => {
+				errors.forEach(error => {
+				  toast.error(error.message)
+				});
+			});
+			return
+		}
 		setError(false)
+		console.log(acceptedFiles)
 		const files = acceptedFiles.map((file) => {
 			const nameParts = file.name.split(".");
 			const ext = nameParts.pop();
@@ -63,6 +73,7 @@ export default function FileUploadClient() {
 			"application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
 		},
 		disabled: uploading,
+		
 	});
 
 	const removeFile = (file: File) => {

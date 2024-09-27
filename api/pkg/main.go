@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -55,7 +56,7 @@ func ProcessOCR(filepath string) (string, error) {
 	client := gosseract.NewClient()
 
 	defer client.Close()
-
+	log.Print("Gossecract")
 	client.SetImage(filepath)
 
 	text, err := client.Text()
@@ -75,8 +76,13 @@ func ProcessPDF(filePath string) (string, error) {
 	defer f.Close()
 
 	var content string
-
+	if r != nil {
+		log.Print("R is not nil")
+	}
 	totalPages := r.NumPage()
+	if totalPages == 0 {
+		return "", fmt.Errorf("error getting number of pages in PDF")
+	}
 
 	for pageIndex := 1; pageIndex <= totalPages; pageIndex++ {
 		p := r.Page(pageIndex)
