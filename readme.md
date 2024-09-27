@@ -1,12 +1,13 @@
+````md
 # LawyerGPT
 
-LawyerGPT is a legal document processing and query system that leverages AI to assist users in understanding and interacting with legal content. It enables users to upload legal documents and ask questions about them, receiving AI-powered responses (powered by the Vercel SDK using Gemini). The platform is built using a combination of cutting-edge technologies for document embedding, storage, and retrieval, making legal research more accessible and efficient.
+LawyerGPT is a legal document processing and query system that leverages AI to assist users in understanding and interacting with legal content. Specifically geared towards Nigerian law, it is trained on Nigerian financial law judgments and legal documents. The platform enables users to upload legal documents and ask questions about them, receiving AI-powered responses (powered by the Vercel SDK using Google Gemini). LawyerGPT uses cutting-edge technologies for document embedding, storage, and retrieval, making legal research more accessible and efficient.
 
 ## Features
 
 - **Upload Legal Documents**: Users can upload legal files such as contracts, agreements, and case briefs.
 - **Document Embedding**: Converts legal documents into embeddings for efficient search and retrieval.
-- **Query System**: Users can ask a wide variety questions of legal questions and get intelligent, context-aware responses powered by Google Gemini Flash via [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction) [Tool calling](https://sdk.vercel.ai/docs/ai-sdk-core/tools-and-tool-calling).
+- **Query System**: Users can ask a wide variety of legal questions, particularly around Nigerian law and financial law, and get intelligent, context-aware responses powered by Google Gemini Flash via [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction) [Tool calling](https://sdk.vercel.ai/docs/ai-sdk-core/tools-and-tool-calling).
 - **Vector Search**: Uses vector databases for fast and accurate retrieval of document chunks related to user queries.
 - **API-Driven**: Offers APIs for document uploads, embeddings, and queries, making it extendable for other applications.
 
@@ -20,14 +21,15 @@ LawyerGPT is a legal document processing and query system that leverages AI to a
 ├── makefile
 └── readme
 ```
+````
 
 ## Stack Overview
 
-- **Frontend**: The frontend is a Next.js (React) application styled with Tailwind CSS, responsible for managing the AI Retrieval-Augmented Generation (RAG) conversations via the Vercel AI SDK. It handles user file uploads, leverages advanced React 19 features like Server Components and Suspense, and maintains code quality with `biome.json`. Continuous Integration and Deployment (CI/CD) pipelines are managed through GitHub Actions for linting, and automated deployments.
+- **Frontend**: The frontend is a Next.js (React) application styled with Tailwind CSS, responsible for managing the AI Retrieval-Augmented Generation (RAG) conversations via the Vercel AI SDK. It handles user file uploads, leverages advanced React 19 features like Server Components and Suspense, and maintains code quality with `biome.json`. The frontend also integrates **Drizzle** for database interactions and **Unkey** for managing API rate limits. **V0** was used largely for the UI, and all conversations are powered by the **Vercel AI SDK**.
 
-- **API**: A Go-based HTTP API responsible for processing file uploads and scraped content, converting them into embeddings and resources. The API handles the heavy lifting of parsing PDFs, DOCX and OCR documents (and necessary interfacing required), ensuring fast and scalable processing of legal documents. **Note**: The API requires an API key from Google Gemini. You can obtain it from [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key).
+- **API**: A Go-based HTTP API responsible for processing file uploads and scraped content, converting them into embeddings and resources. The API handles the heavy lifting of parsing PDFs, DOCX, and OCR documents (and necessary interfacing required), ensuring fast and scalable processing of legal documents. The API is Dockerized, and the project uses **makefiles** to simplify development. **Note**: The API requires an API key from Google Gemini. You can obtain it from [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key).
 
-- **Extractor**: A Go-based script that scrapes legal websites for court judgments and sends the parsed results to the API for embedding.
+- **Extractor**: A Go-based script that scrapes Nigerian legal websites for court judgments and financial law documents, sending the parsed results to the API for embedding. The extractor is managed via a makefile for easy builds and execution.
 
 - **CI/CD**: GitHub Actions are utilized across the stack for automated testing, linting, and deployment. This ensures a consistent and robust development workflow, with all critical paths being covered during each code push.
 
@@ -49,6 +51,9 @@ npm install -g pnpm
    cp .env.example .env
    ```
 
+   > [!IMPORTANT]  
+   > For the `UNKEY_ROOT_KEY`, please find it using [this guide](https://www.unkey.com/docs/ratelimiting/introduction). You will also need to retrieve the `GEMINI_API_KEY` by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key).
+
 2. Install dependencies:
 
    ```bash
@@ -65,7 +70,7 @@ npm install -g pnpm
 
 ### 2. **API (Go HTTP API)**
 
-The API can be run either in a Docker container (recommended) or directly on your local machine with the necessary dependencies.
+The API can be run using Docker, with the project utilizing a makefile for ease of development.
 
 #### Prerequisite: **Set up the `.env` file**
 
@@ -77,56 +82,30 @@ The API can be run either in a Docker container (recommended) or directly on you
 
 2. Obtain the **API_KEY** required for the Google Gemini API by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) and add it to the `.env` file under `API_KEY`.
 
-#### Option 1: **Run via Docker (Recommended)**
+#### Run via Docker with Makefile
 
 **Steps:**
 
-1. Build the Docker image:
+1. Use the makefile to spin up the API:
 
    ```bash
-   docker build -t lawyergpt/api -f Dockerfile.dev .
+   make run
    ```
 
-2. Run the API container:
+   This will spin up the necessary Docker containers using Docker Compose.
 
-   ```bash
-   docker run -it --rm -p 8080:8080 lawyergpt/api
-   ```
-
-3. The API will be available at `http://localhost:8080`.
-
-#### Option 2: **Run Locally (Without Docker)**
-
-If you don't want to use Docker, you will need to install [tesseract-ocr](https://github.com/tesseract-ocr/tessdoc) including library and headers.
-
-Once dependencies are installed, set up the Go project and run the API:
-
-1. Install Go dependencies:
-
-   ```bash
-   go mod download
-   ```
-
-2. Run the API locally:
-   ```bash
-   go run main.go
-   ```
+2. The API will be available at `http://localhost:8080`.
 
 ### 3. **Extractor (Go Script)**
 
-The extractor scrapes legal websites for judgments and sends the results to the API.
+The extractor scrapes Nigerian legal websites for financial law judgments and sends the results to the API. The process is managed via the makefile.
 
 **Steps:**
 
-1. Install Go dependencies:
+1. Build and run the extractor using the makefile:
 
    ```bash
-   go mod download
+   make build-extractor
    ```
 
-2. Run the extractor:
-   ```bash
-   go run extractor.go
-   ```
-
-The extractor will fetch the legal data and send it to the API automatically.
+   This will build and run the extractor executable, which will fetch the legal data and send it to the API automatically.
