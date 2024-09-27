@@ -91,6 +91,30 @@ func createOrGetResourceForURL(tx *gorm.DB, url *string, content string) (string
 	log.Printf("Found existing resource with ID: %d", existingResource.ID)
 	return existingResource.ID, nil
 }
+func createOrGetResourceForFilename(tx *gorm.DB, filename *string, content string) (string, error) {
+	// Check if the resource already exists
+	var existingResource models.Resource
+	if err := tx.Where("filename = ?", filename).First(&existingResource).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// Resource does not exist, create a new one
+			newResource := models.Resource{
+				Filename:   filename,
+				Content: content,
+			}
+			if err := tx.Create(&newResource).Error; err != nil {
+				return "", err
+			}
+			log.Printf("Created resource with ID: %d", newResource.ID)
+			return newResource.ID, nil
+		} else {
+			return "", err
+		}
+	}
+
+	// Resource already exists, return the ID
+	log.Printf("Found existing resource with ID: %d", existingResource.ID)
+	return existingResource.ID, nil
+}
 func (s *semaphore) acquire() {
 	s.sem <- struct{}{}
 }
@@ -108,9 +132,23 @@ func NewAppHandler(db *gorm.DB) *AppHandler {
 }
 func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			// Set the necessary CORS headers
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, x-api-key")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 		log.Print("API MIDDLEWARE")
 		apiKey := r.Header.Get("x-api-key")
+		log.Print(r.Header)
 		if apiKey != os.Getenv("x-api-key") {
+			log.Printf("Keys are %s %s", apiKey, os.Getenv("x-api-key"))
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -118,10 +156,9 @@ func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
-	var wg sync.WaitGroup
+	maxSize := int64(15 << 20) // 15 MB limit
 
-	maxSize := int64(15 << 20) // 15 mb limit
-
+	// Parse multipart form with file size limit
 	r.ParseMultipartForm(maxSize)
 
 	files := r.MultipartForm.File["documents"]
@@ -130,110 +167,130 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No files uploaded", http.StatusBadRequest)
 		return
 	}
-	numSemaphore := int(math.Round(float64(len(files) / 2)))
-	sem := newSemaphore(numSemaphore)
-	for _, fileHeader := range files {
-		if fileHeader.Size > maxSize {
-			log.Print("File exceeds")
-			http.Error(w, "File exceeds size limit", http.StatusRequestEntityTooLarge)
-			return
-		}
-		wg.Add(1)
-		sem.acquire()
 
-		go func(fileHeader *multipart.FileHeader) {
-			defer sem.release()
-			defer wg.Done()
-
-			file, err := fileHeader.Open()
-
-			if err != nil {
-				log.Printf("Error opening file: %v", err)
-				return
-			}
-			defer file.Close()
-
-			// temporarily save the file
-			tempFile, err := os.CreateTemp("", "upload-*")
-			if err != nil {
-				log.Printf("Error creating temp file: %v", err)
-				return
-			}
-			defer os.Remove(tempFile.Name())
-
-			_, readErr := io.ReadAll(file)
-			if readErr != nil {
-				log.Printf("Error reading file: %v", err)
-				return
-			}
-
-			// Detect file type (PDF, DOCX, etc.) and process accordingly
-			var content string
-			var pdfTypeError error
-
-			switch strings.ToLower(filepath.Ext(fileHeader.Filename)) {
-			case ".pdf":
-
-				content, pdfTypeError = pkg.ProcessPDF(tempFile.Name())
-				if pdfTypeError != nil {
-					// If PDF processing fails, attempt OCR as fallback
-					content, pdfTypeError = pkg.ProcessOCR(tempFile.Name())
-				}
-			case ".docx":
-				content, pdfTypeError = pkg.ProcessDOCX(tempFile.Name())
-			case ".jpg", ".jpeg", ".png", ".tiff", ".tif":
-				// Explicitly handle image files with OCR
-				content, pdfTypeError = pkg.ProcessOCR(tempFile.Name())
-			default:
-				pdfTypeError = fmt.Errorf("unsupported file type: %s", filepath.Ext(fileHeader.Filename))
-			}
-
-			if pdfTypeError != nil {
-				log.Printf("Error processing file: %v", err)
-				return
-			}
-			chunks := pkg.ChunkText(content, 4000)
-			log.Printf("Processed file %s into %d chunks", fileHeader.Filename, len(chunks))
-
-			for _, chunk := range chunks {
-				embedding, err := pkg.GenerateEmbeddings(chunk)
-				if err != nil {
-					continue
-				}
-				err = ah.db.Session(&gorm.Session{}).Transaction(func(tx *gorm.DB) error {
-					newResource := models.Resource{
-						Filename: &fileHeader.Filename,
-						Content:  content,
-					}
-					if err := tx.Create(&newResource).Error; err != nil {
-						return err
-					}
-					log.Printf("Created resource with ID: %s", newResource.ID)
-
-					// create  new embedding
-					newEmbedding := models.Embedding{
-						ResourceID: newResource.ID,
-						Content:    chunk,
-						Embedding:  pgvector.NewVector(embedding),
-					}
-
-					if err := tx.Create(&newEmbedding).Error; err != nil {
-						return err
-					}
-					log.Printf("Created embedding with ID: %s", newEmbedding.ID)
-
-					return nil
-
-				})
-
-			}
-		}(fileHeader)
-	}
+	// Send the 202 Accepted response immediately
 	w.WriteHeader(http.StatusAccepted)
 	fmt.Fprintf(w, "Files are being processed asynchronously")
 
-	wg.Wait()
+	// Process files asynchronously in a separate goroutine
+	go func() {
+		log.Print("Do we enter this go routine")
+		var wg sync.WaitGroup
+		numSemaphore := int(math.Ceil(float64(len(files)) / 2.0))
+		log.Print(files)
+		len_files := len(files)
+		log.Print(len_files / 2.0)
+		log.Print(math.Ceil(float64(len(files) / 2.0)))
+		log.Print(numSemaphore)
+		sem := newSemaphore(numSemaphore)
+		log.Printf("Sempahore is %v", sem)
+		for _, fileHeader := range files {
+			if fileHeader.Size > maxSize {
+				log.Print("File exceeds size limit")
+				continue
+			}
+			fmt.Print("File header is %v", fileHeader.Filename)
+			wg.Add(1)
+			sem.acquire()
+
+			go func(fileHeader *multipart.FileHeader) {
+				defer sem.release()
+				defer wg.Done()
+
+				file, err := fileHeader.Open()
+				if err != nil {
+					log.Printf("Error opening file: %v", err)
+					return
+				}
+				
+				defer file.Close()
+
+				// Save to a temporary file
+				tempFile, err := os.CreateTemp("", "upload-*")
+				if err != nil {
+					log.Printf("Error creating temp file: %v", err)
+					return
+				}
+				
+				defer os.Remove(tempFile.Name())
+
+				_, err = io.Copy(tempFile, file)
+				if err != nil {
+				log.Printf("Error writing to temp file: %v", err)
+				return
+				}
+				tempFile.Close()
+
+				// Detect file type and process
+				var content string
+				var processError error
+
+				switch strings.ToLower(filepath.Ext(fileHeader.Filename)) {
+				case ".pdf":
+					content, processError = pkg.ProcessPDF(tempFile.Name())
+					if processError != nil {
+						// Fallback to OCR for PDF errors
+						content, processError = pkg.ProcessOCR(tempFile.Name())
+					}
+				case ".docx":
+					log.Print("Make it in here?")
+					content, processError = pkg.ProcessDOCX(tempFile.Name())
+				case ".jpg", ".jpeg", ".png", ".tiff", ".tif":
+					// Process images with OCR
+					content, processError = pkg.ProcessOCR(tempFile.Name())
+				default:
+					processError = fmt.Errorf("unsupported file type: %s", filepath.Ext(fileHeader.Filename))
+				}
+
+				if processError != nil {
+					log.Printf("Error processing file: %v", processError)
+					return
+				}
+
+				// Chunk content and generate embeddings
+				chunks := pkg.ChunkText(content, 4000)
+				log.Printf("Processed file %s into %d chunks", fileHeader.Filename, len(chunks))
+
+				for _, chunk := range chunks {
+					embedding, err := pkg.GenerateEmbeddings(chunk)
+					if err != nil {
+						continue
+					}
+
+					// Store embeddings and resource in database transaction
+					err = ah.db.Session(&gorm.Session{}).Transaction(func(tx *gorm.DB) error {
+						resourceId, err := createOrGetResourceForFilename(tx, &fileHeader.Filename, content)
+						if err != nil {
+							return err
+						}
+						log.Printf("Created resource with ID: %s", resourceId)
+						log.Printf("Embedding %v", embedding)
+						// create new embedding
+						newEmbedding := models.Embedding{
+							ResourceID: resourceId,
+							Content:    chunk,
+							Embedding:  pgvector.NewVector(embedding),
+						}
+						if err := tx.Create(&newEmbedding).Error; err != nil {
+							log.Printf("Embedding insertion error %v", err)
+							return err
+						}
+						log.Printf("Created embedding with ID: %s", newEmbedding.ID)
+	
+						return nil
+					})
+
+					if err != nil {
+						log.Printf("Error creating embedding: %v", err)
+					}
+				}
+			}(fileHeader)
+		}
+		// Wait for all processing to complete
+		wg.Wait()
+	}()
 }
+
 func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Request) {
 	log.Print("Got in here")
 	var wg sync.WaitGroup
