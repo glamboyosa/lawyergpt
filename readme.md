@@ -1,4 +1,3 @@
-````md
 # LawyerGPT
 
 LawyerGPT is a legal document processing and query system that leverages AI to assist users in understanding and interacting with legal content. Specifically geared towards Nigerian law, it is trained on Nigerian financial law judgments and legal documents. The platform enables users to upload legal documents and ask questions about them, receiving AI-powered responses (powered by the Vercel SDK using Google Gemini). LawyerGPT uses cutting-edge technologies for document embedding, storage, and retrieval, making legal research more accessible and efficient.
@@ -21,7 +20,6 @@ LawyerGPT is a legal document processing and query system that leverages AI to a
 ├── makefile
 └── readme
 ```
-````
 
 ## Stack Overview
 
@@ -51,7 +49,7 @@ npm install -g pnpm
    cp .env.example .env
    ```
 
-   > [!TIP]  
+   > [!TIP]
    > For the `UNKEY_ROOT_KEY`, please find it using [this guide](https://www.unkey.com/docs/ratelimiting/introduction). You will also need to retrieve the `GEMINI_API_KEY` by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key).
 
 2. Install dependencies:
