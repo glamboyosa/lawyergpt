@@ -18,6 +18,7 @@ export default function ConversationContent({ conversationId, initialMessages }:
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [isFirstMessage, setIsFirstMessage] = useState(true);
 	const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
+		maxSteps: 3,
         api: `/api/chat/${conversationId}`,
         initialMessages,
 		onFinish: async (message) => {
