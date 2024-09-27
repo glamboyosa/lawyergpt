@@ -232,7 +232,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 						log.Print("Hey")
 						// Fallback to OCR for PDF errors
 						content, processError = pkg.ProcessOCR(tempFile.Name())
-						log.Print("OCR Content",content)
+						log.Print("OCR Content", content)
 					}
 				case ".docx":
 					log.Print("Make it in here?")
