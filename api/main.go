@@ -98,8 +98,8 @@ func createOrGetResourceForFilename(tx *gorm.DB, filename *string, content strin
 		if err == gorm.ErrRecordNotFound {
 			// Resource does not exist, create a new one
 			newResource := models.Resource{
-				Filename:   filename,
-				Content: content,
+				Filename: filename,
+				Content:  content,
 			}
 			if err := tx.Create(&newResource).Error; err != nil {
 				return "", err
@@ -202,7 +202,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 					log.Printf("Error opening file: %v", err)
 					return
 				}
-				
+
 				defer file.Close()
 
 				// Save to a temporary file
@@ -211,13 +211,13 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 					log.Printf("Error creating temp file: %v", err)
 					return
 				}
-				
+
 				defer os.Remove(tempFile.Name())
 
 				_, err = io.Copy(tempFile, file)
 				if err != nil {
-				log.Printf("Error writing to temp file: %v", err)
-				return
+					log.Printf("Error writing to temp file: %v", err)
+					return
 				}
 				tempFile.Close()
 
@@ -276,7 +276,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 							return err
 						}
 						log.Printf("Created embedding with ID: %s", newEmbedding.ID)
-	
+
 						return nil
 					})
 

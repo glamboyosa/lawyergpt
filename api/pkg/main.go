@@ -34,7 +34,7 @@ func ChunkText(text string, chunkSize int) []string {
 
 // helper function to process DOCX files
 func ProcessDOCX(filepath string) (string, error) {
-	doc, err := document.Open(filepath) 
+	doc, err := document.Open(filepath)
 	if err != nil {
 		return "", err
 	}
