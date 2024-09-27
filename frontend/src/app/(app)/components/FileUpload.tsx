@@ -1,14 +1,16 @@
 "use client";
 
+import { env } from "@/lib/env";
 import { Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 
 export default function FileUploadClient() {
 	const [files, setFiles] = useState<Array<File>>([]);
 	const [uploading, setUploading] = useState(false);
 
-	const onDrop = useCallback((acceptedFiles: Array<File>) => {
+	const onDrop = useCallback(async (acceptedFiles: Array<File>) => {
 		const files = acceptedFiles.map((file) => {
 			const nameParts = file.name.split(".");
 			const ext = nameParts.pop();
@@ -27,6 +29,23 @@ export default function FileUploadClient() {
 		}
 
 		// use server action secured with cookie
+		try {
+			const r = await fetch(`${env.NEXT_PUBLIC_UPLOADER_URL}/upload`, {
+				method: 'POST',
+				body: formData,
+				headers: {
+					'x-api-key':  env.NEXT_PUBLIC_API_KEY
+				}
+			})
+			if (r.status !== 202) {
+				throw new Error("Something went wrong uploading files")
+			} else {
+				toast("File upload in the works")
+			}
+		} catch (error) {
+			const e = error as Error
+			toast.error(e.message)
+		}
 	}, []);
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
