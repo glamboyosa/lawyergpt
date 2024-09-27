@@ -49,10 +49,10 @@ npm install -g pnpm
    cp .env.example .env
    ```
 
-   > [!IMPORTANT]
-   > For the `UNKEY_ROOT_KEY`, please find
-   > it using [this guide](https://www.unkey.com/docs/ratelimiting/introduction).
-   > You will also need to retrieve the `GEMINI_API_KEY` by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key).
+> [!IMPORTANT]
+> For the `UNKEY_ROOT_KEY`, please find
+> it using [this guide](https://www.unkey.com/docs/ratelimiting/introduction).
+> You will also need to retrieve the `GEMINI_API_KEY` by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key).
 
 2. Install dependencies:
 
