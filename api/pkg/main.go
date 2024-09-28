@@ -53,7 +53,7 @@ func ProcessDOCX(filepath string) (string, error) {
 	return content, nil
 }
 // helper function to convert PDFs to images for OCR
-func convertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
+func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
     doc, err := fitz.New(pdfPath)
     if err != nil {
         return nil, fmt.Errorf("failed to open PDF: %v", err)

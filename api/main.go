@@ -231,7 +231,18 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 					if processError != nil {
 						log.Print("Hey")
 						// Fallback to OCR for PDF errors
-						content, processError = pkg.ProcessOCR(tempFile.Name())
+						tempDir, err := os.MkdirTemp("", "fitz")
+						if err != nil {
+							log.Printf("failed to create temp dir: %v", err)
+							return
+						}
+    				defer os.RemoveAll(tempDir)
+					imagePaths, err := pkg.ConvertPDFToImages(tempFile.Name(), tempDir)
+					if err != nil {
+						log.Printf("failed to convert PDF to images: %v", err)
+						return 
+					}
+						content, processError = pkg.ProcessOCR(imagePaths)
 						log.Print("OCR Content", content)
 					}
 				case ".docx":
@@ -239,7 +250,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 					content, processError = pkg.ProcessDOCX(tempFile.Name())
 				case ".jpg", ".jpeg", ".png", ".tiff", ".tif":
 					// Process images with OCR
-					content, processError = pkg.ProcessOCR(tempFile.Name())
+					content, processError = pkg.ProcessOCR([]string{tempFile.Name()})
 				default:
 					processError = fmt.Errorf("unsupported file type: %s", filepath.Ext(fileHeader.Filename))
 				}
