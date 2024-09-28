@@ -2,44 +2,30 @@
 
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
-import ConversationSidebarContent from "./ConversationSidebarContent";
+import { type PropsWithChildren, useEffect, useState } from "react";
 const SidebarIcon = () => (
-	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<title>sidebar icon</title>
+	<svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<title>Hamburger</title>
 		<path
-			d="M4 6H20M4 12H20M4 18H20"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-		/>
-		<path
-			d="M9 3L8 21M16 3L15 21"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
+			d="M1.5 3C1.22386 3 1 3.22386 1 3.5C1 3.77614 1.22386 4 1.5 4H13.5C13.7761 4 14 3.77614 14 3.5C14 3.22386 13.7761 3 13.5 3H1.5ZM1 7.5C1 7.22386 1.22386 7 1.5 7H13.5C13.7761 7 14 7.22386 14 7.5C14 7.77614 13.7761 8 13.5 8H1.5C1.22386 8 1 7.77614 1 7.5ZM1 11.5C1 11.2239 1.22386 11 1.5 11H13.5C13.7761 11 14 11.2239 14 11.5C14 11.7761 13.7761 12 13.5 12H1.5C1.22386 12 1 11.7761 1 11.5Z"
+			fill="currentColor"
+			fill-rule="evenodd"
+			clip-rule="evenodd"
 		/>
 	</svg>
 );
-function SidebarSkeleton() {
-	return (
-		<div className="mt-4 space-y-2">
-			{Array.from({ length: 45 }, (_, i) => i + 1).map((i) => (
-				<div key={i} className="mx-4 h-8 rounded bg-stone-200" />
-			))}
-		</div>
-	);
-}
-const isMobileWidth = () => window.innerWidth < 768;
 
-export default function ConversationsSidebar({ id }: { id: string }) {
-	const [sidebarOpen, setSidebarOpen] = useState(() => isMobileWidth());
+export default function ConversationsSidebar({
+	id,
+	userId,
+	children,
+}: PropsWithChildren<{ userId: string; id: string }>) {
+	const [sidebarOpen, setSidebarOpen] = useState(true);
 
 	useEffect(() => {
+		const isMobileWidth = () => window.innerWidth < 768;
+
 		const abortController = new AbortController();
 		const handleResize = () => {
 			setSidebarOpen(isMobileWidth());
@@ -48,11 +34,15 @@ export default function ConversationsSidebar({ id }: { id: string }) {
 
 		return () => abortController.abort();
 	}, []);
+	// useEffect(() => {
+	// 	const isMobileWidth = () => window.innerWidth < 768;
+	// 	setSidebarOpen(isMobileWidth())
+	// },[])
 	return (
 		<>
 			<Button
 				onClick={() => setSidebarOpen(!sidebarOpen)}
-				className="fixed top-4 left-4 z-50 rounded-md border-4 border-stone-800 bg-stone-200 p-2 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)] md:hidden"
+				className="fixed top-4 left-4 z-50 rounded-md border-4 border-stone-800 bg-stone-200 p-2 text-black/60 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)] hover:text-white"
 			>
 				<SidebarIcon />
 			</Button>
@@ -71,13 +61,15 @@ export default function ConversationsSidebar({ id }: { id: string }) {
 							<Link href="/" className="font-bold text-stone-800 text-xl">
 								LawyerGPT
 							</Link>
-							<Button className="md:hidden">
-								<X className="h-6 w-6 text-stone-600" />
+							<Button
+								onClick={() => setSidebarOpen(false)}
+								className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
+							>
+								Close
 							</Button>
 						</div>
-						<Suspense fallback={<SidebarSkeleton />}>
-							<ConversationSidebarContent userId="user123" currentConversationId={id} />
-						</Suspense>
+
+						{children}
 					</motion.div>
 				)}
 			</AnimatePresence>

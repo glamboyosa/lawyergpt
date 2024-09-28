@@ -9,52 +9,61 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { generateTitle } from "../actions/conversations";
 import { ThinkingAnimation } from "./ThinkingAnimation";
-import useSWR from 'swr'
 interface LimitStatus {
-	success: boolean
-	remaining?: number
-	error?: string
-  }
+	success: boolean;
+	remaining?: number;
+	error?: string;
+}
 const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
-async function fetchLimitStatus(): Promise<{ success: boolean; remaining?: number; error?: string }> {
+async function fetchLimitStatus(): Promise<{
+	success: boolean;
+	remaining?: number;
+	error?: string;
+}> {
 	try {
-	  const response = await fetch('/api/limit', {
-		method: 'GET',
-		credentials: 'include', // This ensures cookies are sent with the request
-	  });
-  
-	  if (!response.ok) {
-		throw new Error('Network response was not ok');
-	  }
-  
-	  const data = await response.json();
-  
-	  if (!data.success) {
-		// Handle rate limiting
-		if (data.remaining !== undefined) {
-		  console.log(`Rate limit remaining: ${data.remaining}`);
+		const response = await fetch("/api/limit", {
+			method: "GET",
+			credentials: "include", // This ensures cookies are sent with the request
+		});
+
+		if (!response.ok) {
+			throw new Error("Network response was not ok");
 		}
-		throw new Error(data.error || 'An error occurred');
-	  }
-  
-	  return data;
+
+		const data = await response.json();
+
+		if (!data.success) {
+			// Handle rate limiting
+			if (data.remaining !== undefined) {
+				console.log(`Rate limit remaining: ${data.remaining}`);
+			}
+			throw new Error(data.error || "An error occurred");
+		}
+
+		return data;
 	} catch (error) {
-	  console.error('Error fetching limit status:', error);
-	  throw error;
+		console.error("Error fetching limit status:", error);
+		throw error;
 	}
-  }
+}
 export default function ConversationContent({
 	conversationId,
 	initialMessages,
 }: { conversationId: string; initialMessages: Array<MessageType> }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [isFirstMessage, setIsFirstMessage] = useState(true);
-	const { data, error: remainingError, isLoading: loading, mutate } = useSWR<LimitStatus>('/api/limit', fetchLimitStatus, {
+	const {
+		data,
+		error: remainingError,
+		isLoading: loading,
+		mutate,
+	} = useSWR<LimitStatus>("/api/limit", fetchLimitStatus, {
 		refreshInterval: 60000,
 		revalidateOnFocus: false,
-	  })
+	});
 	const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
 		maxSteps: 3,
 		api: `/api/chat/${conversationId}`,
@@ -72,10 +81,7 @@ export default function ConversationContent({
 					}
 					setIsFirstMessage(false);
 				}
-				
-			} catch (error) {
-				
-			}
+			} catch (error) {}
 		},
 	});
 
@@ -89,6 +95,7 @@ export default function ConversationContent({
 			toast.error(error.message || "Something went wrong");
 		}
 	}, [error]);
+	console.log(data);
 	return (
 		<>
 			{/* Chat messages */}
@@ -137,7 +144,11 @@ export default function ConversationContent({
 			</div>
 
 			{/* Input form */}
-			<form onSubmit={handleSubmit} className="border-stone-800 border-t-4 bg-white p-4">
+			<form
+				onSubmit={handleSubmit}
+				className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
+			>
+				{data?.remaining ? <p className="mb-2">{data.remaining} messages left</p> : null}
 				<div className="flex items-center space-x-2">
 					<input
 						type="text"
@@ -148,7 +159,7 @@ export default function ConversationContent({
 						className="flex-1 rounded-md border-4 border-stone-800 p-2 focus:outline-none focus:ring-2 focus:ring-stone-500"
 					/>
 					<Button
-						disabled={isLoading || data && data?.remaining === 0}
+						disabled={isLoading || data?.remaining === 0}
 						type="submit"
 						className="rounded-md border-4 border-stone-800 bg-stone-200 p-2 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)] hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500"
 					>

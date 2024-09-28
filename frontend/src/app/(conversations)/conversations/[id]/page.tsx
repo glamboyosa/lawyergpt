@@ -1,19 +1,32 @@
 import { db } from "@/lib/db";
 import { type MessageType, messages as messageTable } from "@/lib/db/schema/conversations";
 import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import ConversationContent from "../../components/ConversationContent";
+import ConversationSidebarWrapper from "../../components/ConversationSidebarWrapper";
 import ConversationsSidebar from "../../components/ConversationsSidebar";
-
+function SidebarSkeleton() {
+	return (
+		<div className="mt-4 space-y-2">
+			{Array.from({ length: 45 }, (_, i) => i + 1).map((i) => (
+				<div key={i} className="mx-4 h-8 rounded bg-stone-200" />
+			))}
+		</div>
+	);
+}
 export default async function ConversationPage({ params }: { params: { id: string } }) {
 	const messages = await db
 		.select()
 		.from(messageTable)
 		.where(eq(messageTable.conversationId, params.id));
+	const user = cookies().get("userId")?.value;
 	return (
 		<div className="flex h-screen bg-stone-100 font-mono">
 			{/* Mobile Sidebar Toggle */}
-			<ConversationsSidebar id={params.id} />
+			<ConversationsSidebar userId={user as string} id={params.id}>
+				<ConversationSidebarWrapper userId={user as string} currentConversationId={params.id} />
+			</ConversationsSidebar>
 			{/* Main content */}
 			<div className="flex flex-1 flex-col">
 				<Suspense fallback={<ConversationSkeleton />}>

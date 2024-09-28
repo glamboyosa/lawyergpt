@@ -20,8 +20,9 @@ export default async function ConversationSidebarContent({
 	userId,
 	currentConversationId,
 }: { userId: string; currentConversationId: string }) {
+	console.log("Here");
 	const userConversations = await getConversations(userId);
-
+	console.log("USER CONVO", userConversations);
 	return (
 		<nav className="mt-4">
 			{userConversations.map((conv) => (

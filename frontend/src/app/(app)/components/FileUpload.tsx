@@ -3,70 +3,72 @@
 import { env } from "@/lib/env";
 import { Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
-import { FileRejection, useDropzone } from "react-dropzone";
+import { type FileRejection, useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 export default function FileUploadClient() {
 	const [files, setFiles] = useState<Array<File>>([]);
 	const [uploading, setUploading] = useState(false);
-	const [error, setError] = useState(false)
-	
-	const onDrop = useCallback(async (acceptedFiles: Array<File>, fileRejections: Array<FileRejection>) => {
-		console.log(fileRejections)
-		if (fileRejections.length > 0) {
-			fileRejections.forEach(({ file, errors }) => {
-				errors.forEach(error => {
-				  toast.error(error.message)
-				});
-			});
-			return
-		}
-		setError(false)
-		console.log(acceptedFiles)
-		const files = acceptedFiles.map((file) => {
-			const nameParts = file.name.split(".");
-			const ext = nameParts.pop();
-			const nameWithoutExt = nameParts.join(".");
-			if (ext && nameWithoutExt.length > 50 - ext?.length - 1) {
-				const truncatedName = `${nameWithoutExt.slice(0, 50 - ext?.length - 1)}.${ext}`;
-				return new File([file], truncatedName, { type: file.type });
-			}
-			return file;
-		});
-		console.log("Files are",files)
-		setFiles(files);
-		setUploading(true);
-		const formData = new FormData();
-		for (let i = 0; i < files.length; i++) {
-			formData.append("documents", files[i]);
-		}
+	const [error, setError] = useState(false);
 
-		// use server action secured with cookie
-		try {
-			const r = await fetch(`${env.NEXT_PUBLIC_UPLOADER_URL}/upload`, {
-				method: 'POST',
-				body: formData,
-				headers: {
-					'x-api-key':  env.NEXT_PUBLIC_API_KEY
-				},
-				cache: "no-store"
-			})
-			if (r.status !== 202) {
-				throw new Error("Something went wrong uploading files")
-			} else {
-				toast("File upload in the works")
-				setTimeout(() => {
-					setFiles([])
-				setUploading(false)
-				setError(false)
-				}, 2000);
+	const onDrop = useCallback(
+		async (acceptedFiles: Array<File>, fileRejections: Array<FileRejection>) => {
+			console.log(fileRejections);
+			if (fileRejections.length > 0) {
+				for (const { file, errors } of fileRejections) {
+					for (const error of errors) {
+						toast.error(error.message);
+					}
+				}
+				return;
 			}
-		} catch (error) {
-			const e = error as Error
-			toast.error(e.message)
-			setError(true)
-			setUploading(false)
-		}
-	}, []);
+			setError(false);
+			console.log(acceptedFiles);
+			const files = acceptedFiles.map((file) => {
+				const nameParts = file.name.split(".");
+				const ext = nameParts.pop();
+				const nameWithoutExt = nameParts.join(".");
+				if (ext && nameWithoutExt.length > 50 - ext?.length - 1) {
+					const truncatedName = `${nameWithoutExt.slice(0, 50 - ext?.length - 1)}.${ext}`;
+					return new File([file], truncatedName, { type: file.type });
+				}
+				return file;
+			});
+			console.log("Files are", files);
+			setFiles(files);
+			setUploading(true);
+			const formData = new FormData();
+			for (let i = 0; i < files.length; i++) {
+				formData.append("documents", files[i]);
+			}
+
+			// use server action secured with cookie
+			try {
+				const r = await fetch(`${env.NEXT_PUBLIC_UPLOADER_URL}/upload`, {
+					method: "POST",
+					body: formData,
+					headers: {
+						"x-api-key": env.NEXT_PUBLIC_API_KEY,
+					},
+					cache: "no-store",
+				});
+				if (r.status !== 202) {
+					throw new Error("Something went wrong uploading files");
+				}
+				toast("File upload in the works");
+				setTimeout(() => {
+					setFiles([]);
+					setUploading(false);
+					setError(false);
+				}, 2000);
+			} catch (error) {
+				const e = error as Error;
+				toast.error(e.message);
+				setError(true);
+				setUploading(false);
+			}
+		},
+		[],
+	);
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,
@@ -75,7 +77,7 @@ export default function FileUploadClient() {
 			"application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
 		},
 		disabled: uploading,
-		maxFiles: 3
+		maxFiles: 3,
 	});
 
 	const removeFile = (file: File) => {

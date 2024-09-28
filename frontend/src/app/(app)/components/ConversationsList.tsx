@@ -14,7 +14,8 @@ async function fetchConversations() {
 		const conversations = await db
 			.select()
 			.from(conversationsTable)
-			.where(eq(conversationsTable.userId, userId.value));
+			.where(eq(conversationsTable.userId, userId.value))
+			.limit(4);
 		return conversations;
 	}
 	await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -1113,7 +1114,6 @@ function ConversationsListContent() {
 				<h3 className="font-bold text-stone-800 text-xl">Your Conversations</h3>
 				<form>
 					<Button
-						onClick={() => {}}
 						type="submit"
 						className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
 					>
@@ -1123,11 +1123,13 @@ function ConversationsListContent() {
 				</form>
 			</div>
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-				{conversations.map((conversation) => (
+				{conversations.map((conversation, i) => (
 					<Link prefetch key={conversation.id} href={`/conversations/${conversation.id}`}>
 						<div className="rounded-lg border-4 border-stone-400 bg-white p-6 transition-shadow duration-200 hover:shadow-[8px_8px_0px_0px_rgba(120,113,108,1)]">
 							<div className="flex items-start justify-between">
-								<h4 className="font-bold text-lg text-stone-800">{conversation.title}</h4>
+								<h4 className="font-bold text-lg text-stone-800">
+									{conversation.title || `Untitled ${i + 1}`}
+								</h4>
 								<span className="inline-flex whitespace-nowrap rounded-full border-2 border-stone-400 bg-stone-200 px-2 py-1 font-semibold text-stone-800 text-xs leading-5">
 									{formatDistanceToNow(conversation.createdAt, { addSuffix: true })}
 								</span>
