@@ -229,9 +229,9 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 				case ".pdf":
 					content, processError = pkg.ProcessPDF(tempFile.Name())
 					if processError != nil {
-						log.Print("Hey")
+						log.Printf("Error processing PDF: %v, falling back to OCR", processError)
 						// Fallback to OCR for PDF errors
-						tempDir, err := os.MkdirTemp("", "fitz")
+						tempDir, err := os.MkdirTemp("", "ocr")
 						if err != nil {
 							log.Printf("failed to create temp dir: %v", err)
 							return
@@ -243,8 +243,12 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 						content, processError = pkg.ProcessOCR(imagePaths)
-						log.Print("OCR Content", content)
+						if processError != nil {
+							log.Printf("OCR processing failed: %v", processError)
+							return
+						}
 					}
+				
 				case ".docx":
 					log.Print("Make it in here?")
 					content, processError = pkg.ProcessDOCX(tempFile.Name())
@@ -259,7 +263,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 					log.Printf("Error processing file: %v", processError)
 					return
 				}
-
+				log.Printf("Content we have is %v", content)
 				// Chunk content and generate embeddings
 				chunks := pkg.ChunkText(content, 7500)
 				log.Printf("Processed file %s into %d chunks", fileHeader.Filename, len(chunks))

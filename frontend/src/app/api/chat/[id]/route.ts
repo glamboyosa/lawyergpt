@@ -14,56 +14,66 @@ import { z } from "zod";
 export const maxDuration = 30;
 
 const unkey = new Ratelimit({
-	rootKey: env.UNKEY_ROOT_KEY,
-	namespace: "/api/chat/[id]",
-	limit: 10,
-	duration: "1d",
+  rootKey: env.UNKEY_ROOT_KEY,
+  namespace: "/api/chat/[id]",
+  limit: 10,
+  duration: "1d",
 });
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-	const isAllowed = hasAuthCookie();
-	if (!isAllowed) {
-		return NextResponse.redirect(new URL("/new-location", req.url));
-	}
-	const { messages } = await req.json();
-	const m = convertToCoreMessages(messages);
-	const userMessage = m.at(-1)?.content as string;
-	const conversationId = params.id;
-	const userId = cookies().get("userId")?.value;
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const isAllowed = hasAuthCookie();
+  if (!isAllowed) {
+    return NextResponse.redirect(new URL("/new-location", req.url));
+  }
+  const { messages } = await req.json();
+  const m = convertToCoreMessages(messages);
+  const userMessage = m.at(-1)?.content as string;
+  const conversationId = params.id;
+  const userId = cookies().get("userId")?.value;
+  const user = cookies().get("user")?.value;
+  try {
+    if (user !== env.PRIMARY_MAIL_I || user !== env.PRIMARY_MAIL_II) {
+      const ratelimit = await unkey.limit(userId as string);
 
-	try {
-		const ratelimit = await unkey.limit(userId as string);
-		if (!ratelimit.success) {
-			revalidatePath(`/conversations/${conversationId}`);
-			return NextResponse.json(
-				{ success: false, error: "Rate limit reached, try again later" },
-				{ status: 429 },
-			);
-		}
-		const result = await streamText({
-			model: google("gemini-1.5-flash"),
-			messages: m,
-			system: chatSystemPrompt,
-			tools: {
-				getInformation: tool({
-					description: "get information from your knowledge base to answer questions.",
-					parameters: z.object({
-						question: z.string().describe("the users question"),
-					}),
-					execute: async ({ question }) => findRelevantContent(question),
-				}),
-			},
-			async onFinish(event) {
-				// save user's and assistant message to DB
-				await db.insert(messagesTable).values([
-					{ content: userMessage, role: "user", conversationId },
-					{ content: event.text, role: "assistant", conversationId },
-				]);
-			},
-		});
-		revalidatePath(`/conversations/${conversationId}`);
-		return result.toDataStreamResponse();
-	} catch (error) {
-		return NextResponse.json({ success: false, error: "An error occurred" }, { status: 500 });
-	}
+      if (!ratelimit.success) {
+        return NextResponse.json(
+          { success: false, error: "Rate limit reached, try again later" },
+          { status: 429 }
+        );
+      }
+    }
+    const result = await streamText({
+      model: google("gemini-1.5-flash"),
+      messages: m,
+      system: chatSystemPrompt,
+      tools: {
+        getInformation: tool({
+          description:
+            "get information from your knowledge base to answer questions.",
+          parameters: z.object({
+            question: z.string().describe("the users question"),
+          }),
+          execute: async ({ question }) => findRelevantContent(question),
+        }),
+      },
+      async onFinish(event) {
+        // save user's and assistant message to DB
+        await db.insert(messagesTable).values([
+          { content: userMessage, role: "user", conversationId },
+          { content: event.text, role: "assistant", conversationId },
+        ]);
+      },
+    });
+
+    return result.toDataStreamResponse();
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "An error occurred" },
+      { status: 500 }
+    );
+  }
 }
+

@@ -54,9 +54,11 @@ export default function FileUploadClient() {
 				throw new Error("Something went wrong uploading files")
 			} else {
 				toast("File upload in the works")
-				setFiles([])
+				setTimeout(() => {
+					setFiles([])
 				setUploading(false)
 				setError(false)
+				}, 2000);
 			}
 		} catch (error) {
 			const e = error as Error
@@ -73,7 +75,7 @@ export default function FileUploadClient() {
 			"application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
 		},
 		disabled: uploading,
-		
+		maxFiles: 3
 	});
 
 	const removeFile = (file: File) => {

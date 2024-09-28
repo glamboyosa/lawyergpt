@@ -54,18 +54,20 @@ func ProcessDOCX(filepath string) (string, error) {
 
 // helper function to convert PDFs to images for OCR
 func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
-
+	log.Print("from this func")
 	err := api.ExtractImagesFile(pdfPath, outputDir, nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract images: %v", err)
 	}
 	imageFiles, err := filepath.Glob(filepath.Join(outputDir, "*.png"))
+	log.Printf("imAGE FILES %v", imageFiles)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list images: %v", err)
 	}
 
 	return imageFiles, nil
 }
+
 
 // helper function to process OCR
 func ProcessOCR(imagePaths []string) (string, error) {
@@ -89,35 +91,63 @@ func ProcessOCR(imagePaths []string) (string, error) {
 
 // helper function to process PDFs
 func ProcessPDF(filePath string) (string, error) {
+	// Defer a recovery function to prevent panics from crashing the goroutine
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Recovered from panic in ProcessPDF: %v\n", r)
+		}
+	}()
+
 	f, r, err := pdf.Open(filePath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error opening PDF: %w", err)
 	}
 	defer f.Close()
 
 	var content string
-	if r != nil {
-		log.Print("R is not nil")
-	}
-	totalPages := r.NumPage()
+	var totalPages int
+
+	// Safely get the number of pages
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("Recovered from panic in NumPage(): %v\n", r)
+				totalPages = 0
+			}
+		}()
+		totalPages = r.NumPage()
+	}()
+
 	if totalPages == 0 {
-		return "", fmt.Errorf("error getting number of pages in PDF")
+		return "", fmt.Errorf("error getting number of pages in PDF or PDF has no pages")
 	}
 
 	for pageIndex := 1; pageIndex <= totalPages; pageIndex++ {
-		p := r.Page(pageIndex)
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Printf("Recovered from panic processing page %d: %v\n", pageIndex, r)
+				}
+			}()
 
-		if p.V.IsNull() {
-			continue
-		}
-		text, err := p.GetPlainText(nil)
+			p := r.Page(pageIndex)
+			if p.V.IsNull() {
+				return
+			}
 
-		if err != nil {
-			return "", err
-		}
-
-		content += text
+			text, err := p.GetPlainText(nil)
+			if err != nil {
+				fmt.Printf("Error getting text from page %d: %v\n", pageIndex, err)
+				return
+			}
+			content += text
+		}()
 	}
+
+	if content == "" {
+		return "", fmt.Errorf("no content extracted from PDF")
+	}
+
 	return content, nil
 }
 func ConvertFloat32ToFloat64(input []float32) []float64 {
