@@ -54,7 +54,7 @@ func ProcessDOCX(filepath string) (string, error) {
 
 // helper function to convert PDFs to images for OCR
 func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
-	
+
 	err := api.ExtractImagesFile(pdfPath, outputDir, nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract images: %v", err)
@@ -66,7 +66,6 @@ func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
 
 	return imageFiles, nil
 }
-
 
 // helper function to process OCR
 func ProcessOCR(imagePaths []string) (string, error) {
