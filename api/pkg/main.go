@@ -4,17 +4,16 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"image/png"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"baliance.com/gooxml/document"
-	"github.com/gen2brain/go-fitz"
 	"github.com/google/generative-ai-go/genai"
 	"github.com/ledongthuc/pdf"
 	"github.com/otiai10/gosseract/v2"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"google.golang.org/api/option"
 )
 
@@ -55,36 +54,19 @@ func ProcessDOCX(filepath string) (string, error) {
 
 // helper function to convert PDFs to images for OCR
 func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
-	doc, err := fitz.New(pdfPath)
+	
+	err := api.ExtractImagesFile(pdfPath, outputDir, nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open PDF: %v", err)
+		return nil, fmt.Errorf("failed to extract images: %v", err)
 	}
-	defer doc.Close()
-
-	var imagePaths []string
-	for n := 0; n < doc.NumPage(); n++ {
-		img, err := doc.Image(n)
-		if err != nil {
-			return nil, fmt.Errorf("failed to render page %d: %v", n+1, err)
-		}
-
-		imgPath := filepath.Join(outputDir, fmt.Sprintf("page_%d.png", n+1))
-		f, err := os.Create(imgPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create image file: %v", err)
-		}
-		defer f.Close()
-
-		err = png.Encode(f, img)
-		if err != nil {
-			return nil, fmt.Errorf("failed to encode image: %v", err)
-		}
-
-		imagePaths = append(imagePaths, imgPath)
+	imageFiles, err := filepath.Glob(filepath.Join(outputDir, "*.png"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to list images: %v", err)
 	}
 
-	return imagePaths, nil
+	return imageFiles, nil
 }
+
 
 // helper function to process OCR
 func ProcessOCR(imagePaths []string) (string, error) {

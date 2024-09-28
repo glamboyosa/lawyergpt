@@ -52,4 +52,4 @@ EXPOSE 8080
 # # Run migrations and start the application
 # CMD ./main
 
-CMD ["air", "-c", "air.toml"]
+CMD ["air", "-c", ".air.toml"]
