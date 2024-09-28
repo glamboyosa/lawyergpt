@@ -68,7 +68,6 @@ func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
 	return imageFiles, nil
 }
 
-
 // helper function to process OCR
 func ProcessOCR(imagePaths []string) (string, error) {
 	client := gosseract.NewClient()

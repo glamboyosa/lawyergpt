@@ -248,7 +248,7 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 					}
-				
+
 				case ".docx":
 					log.Print("Make it in here?")
 					content, processError = pkg.ProcessDOCX(tempFile.Name())
