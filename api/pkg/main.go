@@ -52,37 +52,38 @@ func ProcessDOCX(filepath string) (string, error) {
 	}
 	return content, nil
 }
+
 // helper function to convert PDFs to images for OCR
 func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
-    doc, err := fitz.New(pdfPath)
-    if err != nil {
-        return nil, fmt.Errorf("failed to open PDF: %v", err)
-    }
-    defer doc.Close()
+	doc, err := fitz.New(pdfPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open PDF: %v", err)
+	}
+	defer doc.Close()
 
-    var imagePaths []string
-    for n := 0; n < doc.NumPage(); n++ {
-        img, err := doc.Image(n)
-        if err != nil {
-            return nil, fmt.Errorf("failed to render page %d: %v", n+1, err)
-        }
+	var imagePaths []string
+	for n := 0; n < doc.NumPage(); n++ {
+		img, err := doc.Image(n)
+		if err != nil {
+			return nil, fmt.Errorf("failed to render page %d: %v", n+1, err)
+		}
 
-        imgPath := filepath.Join(outputDir, fmt.Sprintf("page_%d.png", n+1))
-        f, err := os.Create(imgPath)
-        if err != nil {
-            return nil, fmt.Errorf("failed to create image file: %v", err)
-        }
-        defer f.Close()
+		imgPath := filepath.Join(outputDir, fmt.Sprintf("page_%d.png", n+1))
+		f, err := os.Create(imgPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create image file: %v", err)
+		}
+		defer f.Close()
 
-        err = png.Encode(f, img)
-        if err != nil {
-            return nil, fmt.Errorf("failed to encode image: %v", err)
-        }
+		err = png.Encode(f, img)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encode image: %v", err)
+		}
 
-        imagePaths = append(imagePaths, imgPath)
-    }
+		imagePaths = append(imagePaths, imgPath)
+	}
 
-    return imagePaths, nil
+	return imagePaths, nil
 }
 
 // helper function to process OCR
@@ -92,17 +93,17 @@ func ProcessOCR(imagePaths []string) (string, error) {
 	defer client.Close()
 	log.Print("Gossecract")
 	var fullText strings.Builder
-    for _, imagePath := range imagePaths {
-        client.SetImage(imagePath)
-        text, err := client.Text()
-        if err != nil {
-            return "", fmt.Errorf("OCR failed for %s: %v", imagePath, err)
-        }
-        fullText.WriteString(text)
-        fullText.WriteString("\n\n")
-    }
+	for _, imagePath := range imagePaths {
+		client.SetImage(imagePath)
+		text, err := client.Text()
+		if err != nil {
+			return "", fmt.Errorf("OCR failed for %s: %v", imagePath, err)
+		}
+		fullText.WriteString(text)
+		fullText.WriteString("\n\n")
+	}
 
-    return fullText.String(), nil
+	return fullText.String(), nil
 }
 
 // helper function to process PDFs

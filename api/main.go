@@ -236,12 +236,12 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 							log.Printf("failed to create temp dir: %v", err)
 							return
 						}
-    				defer os.RemoveAll(tempDir)
-					imagePaths, err := pkg.ConvertPDFToImages(tempFile.Name(), tempDir)
-					if err != nil {
-						log.Printf("failed to convert PDF to images: %v", err)
-						return 
-					}
+						defer os.RemoveAll(tempDir)
+						imagePaths, err := pkg.ConvertPDFToImages(tempFile.Name(), tempDir)
+						if err != nil {
+							log.Printf("failed to convert PDF to images: %v", err)
+							return
+						}
 						content, processError = pkg.ProcessOCR(imagePaths)
 						log.Print("OCR Content", content)
 					}
