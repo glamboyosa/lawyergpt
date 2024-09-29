@@ -77,10 +77,11 @@ export default function ConversationContent({
 			console.log("FINISH")
 			try {
 				if (isFirstMessage) {
-					console.log("first message")
+					console.log("first message", message)
+					console.log(messages)
 					const result = await generateTitle(
 						conversationId,
-						`${messages[0].content} ${message.content}`,
+						`${message.content}`,
 					);
 					if (typeof result === "string") {
 						toast.error(result);
@@ -89,7 +90,10 @@ export default function ConversationContent({
 					setIsFirstMessage(false);
 					console.log("ALL DOWN")
 				}
-			} catch (error) {}
+			} catch (error) {
+				console.log(error)
+				toast.error("An error occurred")
+			}
 		},
 	});
 	const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
@@ -154,7 +158,7 @@ export default function ConversationContent({
 					onSubmit={handleSubmit}
 					className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
 				>
-					{ <p className="mb-2">{data?.remaining} messages left</p>}
+					{ <p className="mb-2">{data?.remaining || "Unlimited"} messages left</p>}
 					<div className="flex items-center space-x-2">
 						<input
 							type="text"

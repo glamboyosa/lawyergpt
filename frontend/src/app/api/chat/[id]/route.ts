@@ -34,7 +34,7 @@ export async function POST(
   const userId = cookies().get("userId")?.value;
   const user = cookies().get("user")?.value;
   try {
-    if (user !== env.PRIMARY_MAIL_I || user !== env.PRIMARY_MAIL_II) {
+    if (user !== env.PRIMARY_MAIL_I && user !== env.PRIMARY_MAIL_II) {
       const ratelimit = await unkey.limit(userId as string);
 
       if (!ratelimit.success) {

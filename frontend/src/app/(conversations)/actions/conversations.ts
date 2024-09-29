@@ -29,20 +29,24 @@ const unkey = new Ratelimit({
 });
 export async function generateTitle(conversationId: string, content: string) {
   try {
+    console.log("Server axtom");
     const { text } = await generateText({
       model,
       system: generateTextSystemPrompt,
       prompt: generateTextInstruction(content),
     });
-    await db
+    console.log("Generated text", text);
+    const result = await db
       .update(conversations)
       .set({
         title: text,
       })
-      .where(eq(conversations.id, conversationId));
-
+      .where(eq(conversations.id, conversationId))
+      .returning({ title: conversations.title });
+    console.log("title is", result[0].title);
     revalidatePath(`/conversations/${conversationId}`);
   } catch (error) {
+    console.log("DOES IT CAUSEan error", error);
     return "Failed to generate title. Please try again later";
   }
 }
