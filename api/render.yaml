@@ -1,5 +1,5 @@
 services:
-  - name: my-service
+  - name: my-golang-fileupload-api
     type: web
     env: docker
     buildCommand: docker build -t my-app .
