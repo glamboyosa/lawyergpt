@@ -36,6 +36,12 @@ func ChunkText(text string, chunkSize int) []string {
 
 // helper function to process DOCX files
 func ProcessDOCX(filepath string) (string, error) {
+	// Defer a recovery function to prevent panics from crashing the goroutine
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Recovered from panic in ProcessPDF: %v\n", r)
+		}
+	}()
 	doc, err := document.Open(filepath)
 	if err != nil {
 		return "", err
@@ -55,6 +61,12 @@ func ProcessDOCX(filepath string) (string, error) {
 // helper function to convert PDFs to images for OCR
 func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
 	log.Print("from this func")
+	// Defer a recovery function to prevent panics from crashing the goroutine
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Recovered from panic in ProcessPDF: %v\n", r)
+		}
+	}()
 	err := api.ExtractImagesFile(pdfPath, outputDir, nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract images: %v", err)
@@ -71,7 +83,12 @@ func ConvertPDFToImages(pdfPath string, outputDir string) ([]string, error) {
 // helper function to process OCR
 func ProcessOCR(imagePaths []string) (string, error) {
 	client := gosseract.NewClient()
-
+	// Defer a recovery function to prevent panics from crashing the goroutine
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Recovered from panic in ProcessPDF: %v\n", r)
+		}
+	}()
 	defer client.Close()
 	log.Print("Gossecract")
 	var fullText strings.Builder
