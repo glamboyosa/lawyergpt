@@ -18,7 +18,7 @@ function SidebarSkeleton() {
 }
 export default async function ConversationPage({ params }: { params: { id: string } }) {
 	const user = cookies().get("userId")?.value;
-	const name = cookies().get("name")?.value
+	const name = cookies().get("name")?.value;
 	const messages = await db
 		.select()
 		.from(messageTable)
@@ -45,9 +45,8 @@ export default async function ConversationPage({ params }: { params: { id: strin
 function ConversationSkeleton() {
 	return (
 		<div className="flex-1 space-y-4 p-4">
-			<div className="h-8 w-28 justify-end rounded-full bg-stone-200 animate-pulse" ></div>
-			<div className="h-20 w-28 justify-start flex-1 rounded bg-stone-200 animate-pulse" ></div>
+			<div className="h-8 w-28 animate-pulse justify-end rounded-full bg-stone-200" />
+			<div className="h-20 w-28 flex-1 animate-pulse justify-start rounded bg-stone-200" />
 		</div>
 	);
 }
-

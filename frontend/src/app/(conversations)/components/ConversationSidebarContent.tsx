@@ -20,7 +20,6 @@ export default async function ConversationSidebarContent({
 	userId,
 	currentConversationId,
 }: { userId: string; currentConversationId: string }) {
-
 	const userConversations = await getConversations(userId);
 
 	return (

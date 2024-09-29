@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -9,18 +10,18 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
 	title: "LawyerGPT",
 	twitter: {
-		"images": ["/home.jpg"],
+		images: ["/home.jpg"],
 		card: "summary_large_image",
 		description: "AI-powered legal document processing and querying platform.",
-		title: "LawyerGPT"
+		title: "LawyerGPT",
 	},
 	description: "AI-powered legal document processing and querying platform.",
 	openGraph: {
 		type: "website",
 		images: ["/home.jpg"],
 		url: "https://lawyergpt.glamboyosa.xyz",
-		title: "LawyerGPT"
-	}
+		title: "LawyerGPT",
+	},
 };
 
 export default function RootLayout({
@@ -33,6 +34,7 @@ export default function RootLayout({
 			<body className={spaceGrotesk.className}>
 				{children}
 				<Toaster />
+				<Analytics />
 			</body>
 		</html>
 	);

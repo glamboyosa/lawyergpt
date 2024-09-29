@@ -1,15 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Avatar from 'boring-avatars'
 import type { MessageType } from "@/lib/db/schema/conversations";
 import { useSidebarStore } from "@/lib/store/sidebar";
 import { cn } from "@/lib/utils";
 import { useChat } from "ai/react";
+import Avatar from "boring-avatars";
 import { motion } from "framer-motion";
-import { Send, User } from "lucide-react";
+import { Send } from "lucide-react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -57,7 +56,7 @@ export default function ConversationContent({
 	conversationId,
 	name,
 	initialMessages,
-}: { conversationId: string; initialMessages: Array<MessageType>, name: string }) {
+}: { conversationId: string; initialMessages: Array<MessageType>; name: string }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [isFirstMessage, setIsFirstMessage] = useState(true);
 	const {
@@ -70,30 +69,26 @@ export default function ConversationContent({
 		revalidateOnFocus: false,
 	});
 	const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-	
 		api: `/api/chat/${conversationId}`,
 		initialMessages,
 		onFinish: async (message) => {
-			console.log("FINISH")
+			console.log("FINISH");
 			try {
 				if (isFirstMessage) {
-					console.log("first message", message)
-					console.log(messages)
-					const result = await generateTitle(
-						conversationId,
-						`${message.content}`,
-					);
+					console.log("first message", message);
+					console.log(messages);
+					const result = await generateTitle(conversationId, `${message.content}`);
 					if (typeof result === "string") {
 						toast.error(result);
 						return;
 					}
-					await mutate()
+					await mutate();
 					setIsFirstMessage(false);
-					console.log("ALL DOWN")
+					console.log("ALL DOWN");
 				}
 			} catch (error) {
-				console.log(error)
-				toast.error("An error occurred")
+				console.log(error);
+				toast.error("An error occurred");
 			}
 		},
 	});
@@ -114,7 +109,7 @@ export default function ConversationContent({
 	return (
 		<>
 			{/* Chat messages */}
-			<div className="space-y-4 overflow-y-auto h-[85vh] p-4">
+			<div className="h-[85vh] space-y-4 overflow-y-auto p-4">
 				{messages.map((message) => (
 					<div
 						key={message.id}
@@ -130,12 +125,12 @@ export default function ConversationContent({
 								{message.role === "user" ? (
 									<Avatar variant="beam" name={name} className=" text-stone-600" />
 								) : (
-									<Avatar variant="ring"  name="LawyerGPT"/>
+									<Avatar variant="ring" name="LawyerGPT" />
 								)}
 							</div>
 							<div
 								className={cn(
-									"max-w-xs min-w-44 rounded-lg p-3 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl",
+									"min-w-44 max-w-xs rounded-lg p-3 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl",
 									message.role === "user"
 										? "bg-stone-300 text-stone-800"
 										: "border-4 border-stone-800 bg-white text-stone-800",
@@ -159,7 +154,11 @@ export default function ConversationContent({
 					onSubmit={handleSubmit}
 					className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
 				>
-					{ <p className="mb-2">{data?.remaining === 0 ? 0 : data?.remaining || "Unlimited"} messages left</p>}
+					{
+						<p className="mb-2">
+							{data?.remaining === 0 ? 0 : data?.remaining || "Unlimited"} messages left
+						</p>
+					}
 					<div className="flex items-center space-x-2">
 						<input
 							type="text"

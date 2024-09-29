@@ -6,9 +6,9 @@ import { desc, eq } from "drizzle-orm";
 import { ArrowRight, MessageSquareDot } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense, use } from "react";
 import { createNewConversation } from "../actions/actions";
-import { redirect } from "next/navigation";
 async function fetchConversations() {
 	const userId = cookies().get("userId");
 	if (userId) {
