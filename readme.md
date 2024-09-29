@@ -38,7 +38,41 @@ LawyerGPT is a legal document processing and query system that leverages AI to a
 
 ### 1. **Frontend (Next.js App)**
 
-[... existing frontend setup instructions ...]
+To run the frontend, make sure you have `pnpm` installed:
+
+```bash
+npm install -g pnpm
+```
+
+**Steps:**
+
+1. Copy the environment variables file:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+> [!IMPORTANT]
+> For the `UNKEY_ROOT_KEY`, please find
+> it using [this guide](https://www.unkey.com/docs/ratelimiting/introduction).
+> You will also need to retrieve the `GEMINI_API_KEY` by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key).
+
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Start the development server:
+
+   ```bash
+   pnpm run dev
+   ```
+
+4. Access the app at `https://localhost:3000`.
+
+> [!NOTE]
+> We are running the app in development [through HTTPS](https://vercel.com/guides/access-nextjs-localhost-https-certificate-self-signed)
 
 ### 2. **API (Go HTTP API)**
 
@@ -46,7 +80,14 @@ The API can be run using Docker, with the project utilizing a makefile for ease 
 
 #### Prerequisite: **Set up the `.env` file**
 
-[... existing .env setup instructions ...]
+
+1. Copy the environment file:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Obtain the **API_KEY** required for the Google Gemini API by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) and add it to the `.env` file under `API_KEY`.
 
 #### Run via Docker with Makefile
 
