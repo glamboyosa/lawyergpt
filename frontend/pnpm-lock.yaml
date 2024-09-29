@@ -38,6 +38,7 @@ specifiers:
   tsx: ^4.19.1
   typescript: ^5
   zod: ^3.23.8
+  zustand: 5.0.0-rc.2
 
 dependencies:
   '@ai-sdk/google': 0.0.49_zod@3.23.8
@@ -68,6 +69,7 @@ dependencies:
   tailwind-merge: 2.5.2
   tailwindcss-animate: 1.0.7_tailwindcss@3.4.13
   zod: 3.23.8
+  zustand: 5.0.0-rc.2_akny2q5qrtdgcxmpk7iro4qbfu
 
 devDependencies:
   '@biomejs/biome': 1.9.2
@@ -3269,6 +3271,28 @@ packages:
 
   /zod/3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+    dev: false
+
+  /zustand/5.0.0-rc.2_akny2q5qrtdgcxmpk7iro4qbfu:
+    resolution: {integrity: sha512-o2Nwuvnk8vQBX7CcHL8WfFkZNJdxB/VKeWw0tNglw8p4cypsZ3tRT7rTRTDNeUPFS0qaMBRSKe+fVwL5xpcE3A==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+    dependencies:
+      '@types/react': 18.3.8
+      react: 19.0.0-rc-5d19e1c8-20240923
     dev: false
 
   /zwitch/2.0.4:

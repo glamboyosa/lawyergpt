@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { generateTitle } from "../actions/conversations";
 import { ThinkingAnimation } from "./ThinkingAnimation";
+import {motion} from 'framer-motion'
+import { useSidebarStore } from "@/lib/store/sidebar";
 interface LimitStatus {
 	success: boolean;
 	remaining?: number;
@@ -84,6 +86,7 @@ export default function ConversationContent({
 			} catch (error) {}
 		},
 	});
+	const sidebarOpen = useSidebarStore((state) => state.sidebarOpen)
 
 	useEffect(() => {
 		if (messages) {
@@ -144,7 +147,9 @@ export default function ConversationContent({
 			</div>
 
 			{/* Input form */}
-			<form
+			<motion.form
+				animate={{ width: !sidebarOpen ?"100%" : "auto" }}
+				transition={{ type: "spring", duration: 0.3 }}
 				onSubmit={handleSubmit}
 				className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
 			>
@@ -166,7 +171,7 @@ export default function ConversationContent({
 						<Send className="h-5 w-5 text-stone-600" />
 					</Button>
 				</div>
-			</form>
+			</motion.form>
 		</>
 	);
 }
