@@ -2,8 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import type { MessageType } from "@/lib/db/schema/conversations";
+import { useSidebarStore } from "@/lib/store/sidebar";
 import { cn } from "@/lib/utils";
 import { useChat } from "ai/react";
+import { motion } from "framer-motion";
 import { Send, User } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -12,8 +14,6 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { generateTitle } from "../actions/conversations";
 import { ThinkingAnimation } from "./ThinkingAnimation";
-import {AnimatePresence, motion} from 'framer-motion'
-import { useSidebarStore } from "@/lib/store/sidebar";
 interface LimitStatus {
 	success: boolean;
 	remaining?: number;
@@ -86,7 +86,7 @@ export default function ConversationContent({
 			} catch (error) {}
 		},
 	});
-	const sidebarOpen = useSidebarStore((state) => state.sidebarOpen)
+	const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
 
 	useEffect(() => {
 		if (messages) {
@@ -99,7 +99,7 @@ export default function ConversationContent({
 		}
 	}, [error]);
 	console.log(data);
-	console.log("is the sidebar open?",sidebarOpen)
+	console.log("is the sidebar open?", sidebarOpen);
 	return (
 		<>
 			{/* Chat messages */}
@@ -149,32 +149,30 @@ export default function ConversationContent({
 
 			{/* Input form */}
 			<motion.div layout>
-
-			<form
-				onSubmit={handleSubmit}
-				className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
-			>
-				{data?.remaining ? <p className="mb-2">{data.remaining} messages left</p> : null}
-				<div className="flex items-center space-x-2">
-					<input
-						type="text"
-						name="prompt"
-						value={input}
-						onChange={handleInputChange}
-						placeholder="Type your message..."
-						className="w-full rounded-md border-4 border-stone-800 p-2 focus:outline-none focus:ring-2 focus:ring-stone-500"
-					/>
-					<Button
-						disabled={isLoading || data?.remaining === 0}
-						type="submit"
-						className="rounded-md border-4 border-stone-800 bg-stone-200 p-2 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)] hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500"
-					>
-						<Send className="h-5 w-5 text-stone-600" />
-					</Button>
-				</div>
-			</form>
+				<form
+					onSubmit={handleSubmit}
+					className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
+				>
+					{data?.remaining ? <p className="mb-2">{data.remaining} messages left</p> : null}
+					<div className="flex items-center space-x-2">
+						<input
+							type="text"
+							name="prompt"
+							value={input}
+							onChange={handleInputChange}
+							placeholder="Type your message..."
+							className="w-full rounded-md border-4 border-stone-800 p-2 focus:outline-none focus:ring-2 focus:ring-stone-500"
+						/>
+						<Button
+							disabled={isLoading || data?.remaining === 0}
+							type="submit"
+							className="rounded-md border-4 border-stone-800 bg-stone-200 p-2 shadow-[4px_4px_0px_0px_rgba(28,25,23,1)] hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500"
+						>
+							<Send className="h-5 w-5 text-stone-600" />
+						</Button>
+					</div>
+				</form>
 			</motion.div>
-
 		</>
 	);
 }

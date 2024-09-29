@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useSidebarStore } from "@/lib/store/sidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { type PropsWithChildren, useEffect, useState } from "react";
+import { type PropsWithChildren, useEffect } from "react";
 const SidebarIcon = () => (
 	<svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<title>Hamburger</title>
@@ -22,9 +22,9 @@ export default function ConversationsSidebar({
 	userId,
 	children,
 }: PropsWithChildren<{ userId: string; id: string }>) {
-	const sidebarOpen = useSidebarStore((state) => state.sidebarOpen)
-	const setSidebarOpen = useSidebarStore((state) => state.setSidebarOpen)
-  
+	const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
+	const setSidebarOpen = useSidebarStore((state) => state.setSidebarOpen);
+
 	useEffect(() => {
 		const isMobileWidth = () => window.innerWidth < 768;
 
@@ -40,7 +40,7 @@ export default function ConversationsSidebar({
 		// Set initial sidebar state based on window width
 		const isMobileWidth = window.innerWidth < 768;
 		setSidebarOpen(!isMobileWidth);
-	  }, []); // Empty array ensures this runs only on mount
+	}, []); // Empty array ensures this runs only on mount
 	return (
 		<>
 			<Button
@@ -54,10 +54,10 @@ export default function ConversationsSidebar({
 			<AnimatePresence>
 				{sidebarOpen ? (
 					<motion.div
-						initial={{ x: "-100%"}}
-						animate={{ x: 0}}
-						exit={{ x: "-100%", }}
-						transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.3}}
+						initial={{ x: "-100%" }}
+						animate={{ x: 0 }}
+						exit={{ x: "-100%" }}
+						transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.3 }}
 						className="fixed inset-y-0 left-0 z-50 w-64 border-stone-800 border-r-4 bg-white md:relative md:translate-x-0"
 					>
 						<div className="flex h-16 items-center justify-between border-stone-800 border-b-4 px-4">

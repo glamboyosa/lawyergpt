@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationSidebarWrapper from "../../components/ConversationSidebarWrapper";
 import ConversationsSidebar from "../../components/ConversationsSidebar";
-import ClientWrapper, { ConversationClientWrapper } from "../../components/Wrapper";
+import { ConversationClientWrapper } from "../../components/Wrapper";
 function SidebarSkeleton() {
 	return (
 		<div className="mt-4 space-y-2">

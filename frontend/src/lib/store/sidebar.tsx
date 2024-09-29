@@ -1,11 +1,11 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 
 type SidebarState = {
-  sidebarOpen: boolean
-  setSidebarOpen: (isOpen: boolean) => void
-}
+	sidebarOpen: boolean;
+	setSidebarOpen: (isOpen: boolean) => void;
+};
 
 export const useSidebarStore = create<SidebarState>()((set) => ({
-  sidebarOpen: true,
-  setSidebarOpen: (isOpen) => set({ sidebarOpen: isOpen }),
-}))
+	sidebarOpen: true,
+	setSidebarOpen: (isOpen) => set({ sidebarOpen: isOpen }),
+}));
