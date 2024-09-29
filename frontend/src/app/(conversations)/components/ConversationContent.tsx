@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { generateTitle } from "../actions/conversations";
 import { ThinkingAnimation } from "./ThinkingAnimation";
-import {motion} from 'framer-motion'
+import {AnimatePresence, motion} from 'framer-motion'
 import { useSidebarStore } from "@/lib/store/sidebar";
 interface LimitStatus {
 	success: boolean;
@@ -99,6 +99,7 @@ export default function ConversationContent({
 		}
 	}, [error]);
 	console.log(data);
+	console.log("is the sidebar open?",sidebarOpen)
 	return (
 		<>
 			{/* Chat messages */}
@@ -147,9 +148,9 @@ export default function ConversationContent({
 			</div>
 
 			{/* Input form */}
-			<motion.form
-				animate={{ width: !sidebarOpen ?"100%" : "auto" }}
-				transition={{ type: "spring", duration: 0.3 }}
+			<motion.div layout>
+
+			<form
 				onSubmit={handleSubmit}
 				className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
 			>
@@ -161,7 +162,7 @@ export default function ConversationContent({
 						value={input}
 						onChange={handleInputChange}
 						placeholder="Type your message..."
-						className="flex-1 rounded-md border-4 border-stone-800 p-2 focus:outline-none focus:ring-2 focus:ring-stone-500"
+						className="w-full rounded-md border-4 border-stone-800 p-2 focus:outline-none focus:ring-2 focus:ring-stone-500"
 					/>
 					<Button
 						disabled={isLoading || data?.remaining === 0}
@@ -171,7 +172,9 @@ export default function ConversationContent({
 						<Send className="h-5 w-5 text-stone-600" />
 					</Button>
 				</div>
-			</motion.form>
+			</form>
+			</motion.div>
+
 		</>
 	);
 }

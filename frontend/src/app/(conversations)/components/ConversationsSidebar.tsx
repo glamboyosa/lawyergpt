@@ -52,11 +52,11 @@ export default function ConversationsSidebar({
 
 			{/* Sidebar */}
 			<AnimatePresence>
-				{sidebarOpen && (
+				{sidebarOpen ? (
 					<motion.div
-						initial={{ x: "-100%" }}
-						animate={{ x: 0 }}
-						exit={{ x: "-100%" }}
+						initial={{ x: "-100%"}}
+						animate={{ x: 0}}
+						exit={{ x: "-100%", }}
 						transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.3}}
 						className="fixed inset-y-0 left-0 z-50 w-64 border-stone-800 border-r-4 bg-white md:relative md:translate-x-0"
 					>
@@ -74,7 +74,7 @@ export default function ConversationsSidebar({
 
 						{children}
 					</motion.div>
-				)}
+				) : null}
 			</AnimatePresence>
 		</>
 	);

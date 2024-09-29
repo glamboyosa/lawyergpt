@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationSidebarWrapper from "../../components/ConversationSidebarWrapper";
 import ConversationsSidebar from "../../components/ConversationsSidebar";
+import ClientWrapper, { ConversationClientWrapper } from "../../components/Wrapper";
 function SidebarSkeleton() {
 	return (
 		<div className="mt-4 space-y-2">
@@ -22,7 +23,7 @@ export default async function ConversationPage({ params }: { params: { id: strin
 		.where(eq(messageTable.conversationId, params.id));
 	const user = cookies().get("userId")?.value;
 	return (
-		<div className="flex h-screen bg-stone-100 font-mono">
+		<ConversationClientWrapper>
 			{/* Mobile Sidebar Toggle */}
 			<ConversationsSidebar userId={user as string} id={params.id}>
 				<ConversationSidebarWrapper userId={user as string} currentConversationId={params.id} />
@@ -36,7 +37,7 @@ export default async function ConversationPage({ params }: { params: { id: strin
 					/>
 				</Suspense>
 			</div>
-		</div>
+		</ConversationClientWrapper>
 	);
 }
 
