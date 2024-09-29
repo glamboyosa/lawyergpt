@@ -1,7 +1,7 @@
 # LawyerGPT
 
 LawyerGPT is a legal document processing and query system that leverages AI to assist users in understanding and interacting with legal content. Specifically geared towards Nigerian law, it is trained on Nigerian financial law judgments and legal documents. The platform enables users to upload legal documents and ask questions about them, receiving AI-powered responses (powered by the Vercel SDK using Google Gemini). LawyerGPT uses cutting-edge technologies for document embedding, storage, and retrieval, making legal research more accessible and efficient.
-
+> Illustrations by Popsy.co
 ## Features
 
 - **Upload Legal Documents**: Users can upload legal files such as contracts, agreements, and case briefs.
