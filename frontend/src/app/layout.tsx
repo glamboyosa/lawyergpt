@@ -9,6 +9,12 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
 	title: "LawyerGPT",
 	description: "AI-powered legal document processing and querying platform.",
+	openGraph: {
+		type: "website",
+		images: ["/home.png"],
+		"url": "https://lawyergpt.glamboyosa.xyz",
+		title: "LawyerGPT"
+	}
 };
 
 export default function RootLayout({
