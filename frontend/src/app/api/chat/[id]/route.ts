@@ -46,9 +46,9 @@ export async function POST(
     }
     const result = await streamText({
       model: google("gemini-1.5-flash"),
+      maxSteps: 3,
       messages: m,
       system: chatSystemPrompt,
-      prompt: chatInstruction,
       tools: {
         getInformation: tool({
           description:

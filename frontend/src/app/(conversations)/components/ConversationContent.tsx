@@ -70,7 +70,7 @@ export default function ConversationContent({
 		revalidateOnFocus: false,
 	});
 	const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-		maxSteps: 3,
+	
 		api: `/api/chat/${conversationId}`,
 		initialMessages,
 		onFinish: async (message) => {
