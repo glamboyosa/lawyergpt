@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { conversations as conversationsTable } from "@/lib/db/schema/conversations";
 import { formatDistanceToNow } from "date-fns";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { ArrowRight, MessageSquareDot } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -16,6 +16,7 @@ async function fetchConversations() {
 			.select()
 			.from(conversationsTable)
 			.where(eq(conversationsTable.userId, userId.value))
+			.orderBy(desc(conversationsTable.updatedAt))
 			.limit(4);
 		return conversations;
 	}

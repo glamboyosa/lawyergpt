@@ -66,7 +66,7 @@ export default function ConversationContent({
 		isLoading: loading,
 		mutate,
 	} = useSWR<LimitStatus>("/api/limit", fetchLimitStatus, {
-		refreshInterval: 60000,
+		refreshInterval: 30000,
 		revalidateOnFocus: false,
 	});
 	const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
@@ -87,6 +87,7 @@ export default function ConversationContent({
 						toast.error(result);
 						return;
 					}
+					await mutate()
 					setIsFirstMessage(false);
 					console.log("ALL DOWN")
 				}
@@ -158,7 +159,7 @@ export default function ConversationContent({
 					onSubmit={handleSubmit}
 					className="flex flex-col border-stone-800 border-t-4 bg-white p-4"
 				>
-					{ <p className="mb-2">{data?.remaining || "Unlimited"} messages left</p>}
+					{ <p className="mb-2">{data?.remaining === 0 ? 0 : data?.remaining || "Unlimited"} messages left</p>}
 					<div className="flex items-center space-x-2">
 						<input
 							type="text"

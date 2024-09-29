@@ -10,7 +10,7 @@ async function getConversations(userId: string) {
 		.select()
 		.from(conversations)
 		.where(eq(conversations.userId, userId))
-		.orderBy(desc(conversations.createdAt))
+		.orderBy(desc(conversations.updatedAt))
 		.limit(10);
 
 	return userConversations;

@@ -1,6 +1,6 @@
 import { findRelevantContent } from "@/lib/ai/embedding";
 import { google } from "@/lib/ai/google";
-import { chatSystemPrompt } from "@/lib/ai/prompts";
+import { chatInstruction, chatSystemPrompt } from "@/lib/ai/prompts";
 import { hasAuthCookie } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { messages as messagesTable } from "@/lib/db/schema/conversations";
@@ -48,6 +48,7 @@ export async function POST(
       model: google("gemini-1.5-flash"),
       messages: m,
       system: chatSystemPrompt,
+      prompt: chatInstruction,
       tools: {
         getInformation: tool({
           description:
