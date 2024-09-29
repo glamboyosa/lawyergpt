@@ -17,11 +17,12 @@ function SidebarSkeleton() {
 	);
 }
 export default async function ConversationPage({ params }: { params: { id: string } }) {
+	const user = cookies().get("userId")?.value;
+	const name = cookies().get("name")?.value
 	const messages = await db
 		.select()
 		.from(messageTable)
 		.where(eq(messageTable.conversationId, params.id));
-	const user = cookies().get("userId")?.value;
 	return (
 		<ConversationClientWrapper>
 			{/* Mobile Sidebar Toggle */}
@@ -32,6 +33,7 @@ export default async function ConversationPage({ params }: { params: { id: strin
 			<div className="flex flex-1 flex-col">
 				<Suspense fallback={<ConversationSkeleton />}>
 					<ConversationContent
+						name={name as string}
 						conversationId={params.id}
 						initialMessages={messages as Array<MessageType>}
 					/>
@@ -40,16 +42,12 @@ export default async function ConversationPage({ params }: { params: { id: strin
 		</ConversationClientWrapper>
 	);
 }
-
 function ConversationSkeleton() {
 	return (
 		<div className="flex-1 space-y-4 p-4">
-			{Array.from({ length: 3 }, (_, i) => i + 1).map((i) => (
-				<div key={i} className="flex items-start space-x-2">
-					<div className="h-8 w-8 rounded-full bg-stone-200" />
-					<div className="h-20 flex-1 rounded bg-stone-200" />
-				</div>
-			))}
+			<div className="h-8 w-28 justify-end rounded-full bg-stone-200 animate-pulse" ></div>
+			<div className="h-20 w-28 justify-start flex-1 rounded bg-stone-200 animate-pulse" ></div>
 		</div>
 	);
 }
+

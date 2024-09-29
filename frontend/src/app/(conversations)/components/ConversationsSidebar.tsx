@@ -51,7 +51,7 @@ export default function ConversationsSidebar({
 			</Button>
 
 			{/* Sidebar */}
-			<AnimatePresence>
+			<AnimatePresence initial={false}>
 				{sidebarOpen ? (
 					<motion.div
 						initial={{ x: "-100%" }}

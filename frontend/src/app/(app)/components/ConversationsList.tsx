@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense, use } from "react";
 import { createNewConversation } from "../actions/actions";
+import { redirect } from "next/navigation";
 async function fetchConversations() {
 	const userId = cookies().get("userId");
 	if (userId) {
@@ -57,7 +58,10 @@ function ConversationsListContent() {
 	const handleCreateConversation = async () => {
 		"use server";
 		const userId = cookies().get("userId")?.value;
-		await createNewConversation(userId as string);
+		const id = await createNewConversation(userId as string);
+		if (typeof id === "string") {
+			redirect(`/conversations/${id}`);
+		}
 	};
 	console.log(res);
 	if (conversations.length === 0) {
@@ -1112,7 +1116,7 @@ function ConversationsListContent() {
 		<div className="w-full max-w-4xl">
 			<div className="mb-6 flex items-center justify-between">
 				<h3 className="font-bold text-stone-800 text-xl">Your Conversations</h3>
-				<form>
+				<form action={handleCreateConversation}>
 					<Button
 						type="submit"
 						className="inline-flex items-center rounded-md border-2 border-stone-400 bg-stone-200 px-4 py-2 font-bold text-sm text-stone-800 shadow-[4px_4px_0px_0px_rgba(120,113,108,1)] transition-colors duration-200 hover:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"

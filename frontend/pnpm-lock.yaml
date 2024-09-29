@@ -11,6 +11,7 @@ specifiers:
   '@types/react-dom': ^18
   '@unkey/ratelimit': ^0.4.4
   ai: ^3.4.4
+  boring-avatars: ^1.11.2
   class-variance-authority: ^0.7.0
   clsx: ^2.1.1
   date-fns: ^2.30.0
@@ -47,6 +48,7 @@ dependencies:
   '@t3-oss/env-nextjs': 0.11.1_dqq4a2en4nots3dh3xut264en4
   '@unkey/ratelimit': 0.4.4
   ai: 3.4.4_7iviixs5q5gys26gld2jva5gva
+  boring-avatars: 1.11.2
   class-variance-authority: 0.7.0
   clsx: 2.1.1
   date-fns: 2.30.0
@@ -1532,6 +1534,10 @@ packages:
   /binary-extensions/2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  /boring-avatars/1.11.2:
+    resolution: {integrity: sha512-3+wkwPeObwS4R37FGXMYViqc4iTrIRj5yzfX9Qy4mnpZ26sX41dGMhsAgmKks1r/uufY1pl4vpgzMWHYfJRb2A==}
+    dev: false
 
   /brace-expansion/2.0.1:
     resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
