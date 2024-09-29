@@ -9,7 +9,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
 	title: "LawyerGPT",
 	twitter: {
-		"images": ["/home.png"],
+		"images": ["/home.jpg"],
 		card: "summary_large_image",
 		description: "AI-powered legal document processing and querying platform.",
 		title: "LawyerGPT"
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 	description: "AI-powered legal document processing and querying platform.",
 	openGraph: {
 		type: "website",
-		images: ["/home.png"],
+		images: ["/home.jpg"],
 		url: "https://lawyergpt.glamboyosa.xyz",
 		title: "LawyerGPT"
 	}
