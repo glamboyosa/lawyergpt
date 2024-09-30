@@ -1,4 +1,6 @@
+.env
 .env.*
 tmp
-extractor
 main
+!.env.example
+/extractor/extractor
