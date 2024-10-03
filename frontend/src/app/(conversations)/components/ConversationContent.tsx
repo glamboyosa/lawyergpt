@@ -160,13 +160,12 @@ export default function ConversationContent({
 						</p>
 					}
 					<div className="flex items-center space-x-2">
-						<input
-							type="text"
+						<textarea
 							name="prompt"
 							value={input}
 							onChange={handleInputChange}
 							placeholder="Type your message..."
-							className="w-full rounded-md border-4 border-stone-800 p-2 focus:outline-none focus:ring-2 focus:ring-stone-500"
+							className="w-full [--padding] [field-sizing:content] p-[var(--padding)] px-[calc(var(--padding)+(1lh-1ex)/2)] min-h-[calc(21h+2*var(--padding))] max-h-[calc(41h+2*var(--padding))] rounded-md border-4 border-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-500"
 						/>
 						<Button
 							disabled={isLoading || data?.remaining === 0}
