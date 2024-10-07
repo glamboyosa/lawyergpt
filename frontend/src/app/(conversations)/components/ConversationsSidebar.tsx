@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useSidebarStore } from "@/lib/store/sidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { type PropsWithChildren, useEffect } from "react";
+import { type PropsWithChildren, useCallback, useEffect } from "react";
 const SidebarIcon = () => (
 	<svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<title>Hamburger</title>
@@ -25,22 +25,26 @@ export default function ConversationsSidebar({
 	const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
 	const setSidebarOpen = useSidebarStore((state) => state.setSidebarOpen);
 
-	useEffect(() => {
-		const isMobileWidth = () => window.innerWidth < 768;
+	const isMobileWidth = useCallback(() => {
+		if (typeof window !== "undefined") {
+			return window.innerWidth < 768;
+		}
+		return false;
+	}, []);
 
+	const updateSidebarState = useCallback(() => {
+		setSidebarOpen(!isMobileWidth());
+	}, [isMobileWidth, setSidebarOpen]);
+
+	useEffect(() => {
 		const abortController = new AbortController();
-		const handleResize = () => {
-			setSidebarOpen(!isMobileWidth());
-		};
-		window.addEventListener("resize", handleResize, { signal: abortController.signal });
+
+		updateSidebarState();
+
+		window.addEventListener("resize", updateSidebarState, { signal: abortController.signal });
 
 		return () => abortController.abort();
-	}, []);
-	useEffect(() => {
-		// Set initial sidebar state based on window width
-		const isMobileWidth = window.innerWidth < 768;
-		setSidebarOpen(!isMobileWidth);
-	}, []); // Empty array ensures this runs only on mount
+	}, [updateSidebarState]);
 	return (
 		<>
 			<Button
