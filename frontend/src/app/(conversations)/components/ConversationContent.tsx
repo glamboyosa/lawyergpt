@@ -109,7 +109,7 @@ export default function ConversationContent({
 	return (
 		<>
 			{/* Chat messages */}
-			<div className="h-[85vh] space-y-4 overflow-y-auto p-4">
+			<div className="h-[85vh] space-y-4 overflow-x-clip overflow-y-auto p-4">
 				{messages.map((message) => (
 					<div
 						key={message.id}
