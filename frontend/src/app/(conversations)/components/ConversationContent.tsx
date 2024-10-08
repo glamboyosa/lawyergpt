@@ -137,7 +137,7 @@ export default function ConversationContent({
 								)}
 							>
 								{message.content.length > 0 ? (
-									<ReactMarkdown>{message.content}</ReactMarkdown>
+									<ReactMarkdown className="whitespace-pre-wrap">{message.content}</ReactMarkdown>
 								) : (
 									<ThinkingAnimation />
 								)}
