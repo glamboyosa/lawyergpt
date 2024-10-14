@@ -177,11 +177,6 @@ func (ah *AppHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 		log.Print("Do we enter this go routine")
 		var wg sync.WaitGroup
 		numSemaphore := int(math.Ceil(float64(len(files)) / 2.0))
-		log.Print(files)
-		len_files := len(files)
-		log.Print(len_files / 2.0)
-		log.Print(math.Ceil(float64(len(files) / 2.0)))
-		log.Print(numSemaphore)
 		sem := newSemaphore(numSemaphore)
 		log.Printf("Sempahore is %v", sem)
 		for _, fileHeader := range files {
