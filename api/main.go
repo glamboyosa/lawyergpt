@@ -368,10 +368,10 @@ func (ah *AppHandler) handleTextEmbeddings(w http.ResponseWriter, r *http.Reques
 }
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 
-	// Set the content type to HTML
+	// Return some HTML
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	// Write a simple Hello, World! HTML response
+	
 	fmt.Fprint(w, "<h1>Hello, World!</h1>")
 }
 
