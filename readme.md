@@ -1,7 +1,9 @@
 # LawyerGPT
 
 LawyerGPT is a legal document processing and query system that leverages AI to assist users in understanding and interacting with legal content. Specifically geared towards Nigerian law, it is trained on Nigerian financial law judgments and legal documents. The platform enables users to upload legal documents and ask questions about them, receiving AI-powered responses (powered by the Vercel SDK using Google Gemini). LawyerGPT uses cutting-edge technologies for document embedding, storage, and retrieval, making legal research more accessible and efficient.
+
 > Illustrations by Popsy.co
+
 ## Features
 
 - **Upload Legal Documents**: Users can upload legal files such as contracts, agreements, and case briefs.
@@ -80,11 +82,10 @@ The API can be run using Docker, with the project utilizing a makefile for ease 
 
 #### Prerequisite: **Set up the `.env` file**
 
-
 1. Copy the environment file:
 
    ```bash
-   cp .env.example .env
+   cp .env.example .env.development
    ```
 
 2. Obtain the **API_KEY** required for the Google Gemini API by visiting [Google Gemini API](https://ai.google.dev/gemini-api/docs/api-key) and add it to the `.env` file under `API_KEY`.
